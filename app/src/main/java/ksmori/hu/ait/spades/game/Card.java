@@ -40,7 +40,13 @@ public class Card implements Comparable{
     }
 
 
+    public Card(int value, int suit) {
+        this.suit = suit;
+        this.value = value;
+    }
+
     @Override
+
     public boolean equals(Object obj) {
         return compareTo(obj) == 0;
     }
