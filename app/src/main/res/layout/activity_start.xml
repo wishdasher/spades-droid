@@ -10,8 +10,9 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="ksmori.hu.ait.spades.StartActivity">
 
-    <TextView
+    <EditText
+        android:id="@+id/etCLI"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:hint="Enter commands here" />
 </RelativeLayout>
