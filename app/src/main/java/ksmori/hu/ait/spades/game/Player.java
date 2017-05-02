@@ -1,9 +1,9 @@
 package ksmori.hu.ait.spades.game;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class Player {
-    private ArrayList<Card> cards;
+    private List<Card> cards;
     public enum Id{
         NORTH(0,"North"), EAST(1,"East"), SOUTH(2,"South"), WEST(3,"West");
         private int value;
@@ -16,6 +16,7 @@ public class Player {
         public int getValue() {
             return value;
         }
+        public String getText() { return text; }
 
         // How Prof avoids storing Enum in Realm
         public static Id fromInt(int value) throws IllegalArgumentException {
@@ -34,6 +35,12 @@ public class Player {
     private int id;
     private int bid;
     private int score;
+    private String name;
+
+    public Player(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
     public int getId() {
         return id;
@@ -57,6 +64,14 @@ public class Player {
 
     public void setScore(int score) {
         this.score = score;
+    }
+
+    public List<Card> getCards(){
+        return cards;
+    }
+
+    public void setCards(List<Card> cards){
+        this.cards = cards;
     }
 
 }
