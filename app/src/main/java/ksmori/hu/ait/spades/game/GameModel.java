@@ -11,13 +11,12 @@ public class GameModel {
     private Player[] players; //indexed by ID
     private Card[] trick; //also indexed by player ID
     private boolean isSpadesBroken;
-    private List<Card> deck; //nice methods for shuffling, hopefully
+    private Deck deck;
 
     // BEGIN Singleton Design
     private static GameModel instance = null;
 
     private GameModel() {
-        initializeDeck();
         initializePlayers();
     }
 
@@ -29,16 +28,6 @@ public class GameModel {
         return instance;
     }
     // END Singleton Design
-
-    private void initializeDeck(){
-        deck = new ArrayList<Card>();
-        for(Card.Suit s : Card.Suit.values()) {
-            for (int j = 0; j < 13; j++) {
-                deck.add(new Card(j,s.getRank()));
-            }
-        }
-    }
-
 
     private void initializePlayers() {
         players = new Player[NUM_PLAYERS];

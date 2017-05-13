@@ -1,9 +1,14 @@
 package ksmori.hu.ait.spades.game;
 
 import java.util.List;
+import java.util.Set;
 
 public class Player {
-    private List<Card> cards;
+
+    private Set<Card> hand;
+    private boolean isHostPlayer;
+    private Player partner;
+
     public enum Id{
         NORTH(0,"North"), EAST(1,"East"), SOUTH(2,"South"), WEST(3,"West");
         private int value;
