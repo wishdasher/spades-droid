@@ -5,7 +5,7 @@ import java.util.Set;
 
 public class Player {
 
-    private Set<Card> hand;
+    private List<Card> cards;
     private boolean isHostPlayer;
     private Player partner;
 
