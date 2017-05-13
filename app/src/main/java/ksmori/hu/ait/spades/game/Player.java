@@ -5,7 +5,7 @@ import java.util.Set;
 
 public class Player {
 
-    private List<Card> cards;
+    private Set<Card> cards;
     private boolean isHostPlayer;
     private Player partner;
 
@@ -71,11 +71,11 @@ public class Player {
         this.score = score;
     }
 
-    public List<Card> getCards(){
+    public Set<Card> getCards(){
         return cards;
     }
 
-    public void setCards(List<Card> cards){
+    public void setCards(Set<Card> cards){
         this.cards = cards;
     }
 
