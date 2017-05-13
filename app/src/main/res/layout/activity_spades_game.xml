@@ -8,6 +8,7 @@
 
 
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
@@ -45,5 +46,20 @@
     </android.support.design.widget.AppBarLayout>
 
 
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:textSize="64sp"
+        android:text="WHAT THE IS GOING ON"/>
+
+
+    <FrameLayout
+        android:id="@+id/fl_game_table_container"
+        android:layout_width="match_parent"
+        android:layout_below="@id/appbar"
+        app:layout_heightPercent="60%"></FrameLayout>
 
 </android.support.percent.PercentRelativeLayout>
