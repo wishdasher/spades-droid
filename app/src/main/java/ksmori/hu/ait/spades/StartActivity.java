@@ -43,7 +43,7 @@ public class StartActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        mGoogleApiClient.connect();
+        mGoogleApiClient.connect(GoogleApiClient.SIGN_IN_MODE_OPTIONAL);
     }
 
     @Override

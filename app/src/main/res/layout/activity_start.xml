@@ -11,7 +11,7 @@
     tools:context="ksmori.hu.ait.spades.StartActivity">
 
     <EditText
-        android:id="@+id/etCLI"
+        android:id="@+id/et_cli"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="Enter commands here" />

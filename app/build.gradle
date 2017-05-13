@@ -31,6 +31,10 @@ dependencies {
     // Import and use Google Play's provided utilities
     compile 'com.google.android.gms:play-services-auth:10.2.4'
     // Let users sign in to Google Play
+    compile 'com.android.support:percent:25.3.1'
+    // Use the PercentRelativeLayout
+    compile 'com.android.support:design:25.3.1'
+    // Use the Design Support Library for AppBarLayout and Toolbar
     testCompile 'junit:junit:4.12'
 }
 
