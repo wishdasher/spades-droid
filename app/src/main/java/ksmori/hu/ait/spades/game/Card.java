@@ -5,8 +5,6 @@ import android.support.annotation.NonNull;
 
 public class Card implements Comparable {
 
-
-
     public enum Suit {
         DIAMOND(0), CLUB(1), HEART(2), SPADE(3);
 
@@ -68,7 +66,7 @@ public class Card implements Comparable {
                 strTitle = "" + value;
         }
         String strSuit = suit.name().toLowerCase();
-        return "card_" + strTitle + "_of_" + strSuit + ".png";
+        return "card_" + strTitle + "_of_" + strSuit + "s.png";
     }
 
     @Override
