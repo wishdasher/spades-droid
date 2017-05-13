@@ -29,5 +29,11 @@ dependencies {
     // Use Google Play Games
     compile project(':BaseGameUtils')
     // Import and use Google Play's provided utilities
+    compile 'com.google.android.gms:play-services-auth:10.2.4'
+    // Let users sign in to Google Play
     testCompile 'junit:junit:4.12'
 }
+
+apply plugin: 'com.google.gms.google-services'
+// Goes at the bottom to avoid dependency collisions, according
+// to https://developers.google.com/android/guides/google-services-plugin

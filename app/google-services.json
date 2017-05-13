@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "765884014341",
+    "project_id": "spades-droid-21754411"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:765884014341:android:e6d2cafe33f20ae9",
+        "android_client_info": {
+          "package_name": "ksmori.hu.ait.spades"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "765884014341-mm46uogrv7mggthmtmh6vbup7qtobv5l.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "765884014341-cfedi6m9gag42d80kvqd6pqcvkffs6kf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ksmori.hu.ait.spades",
+            "certificate_hash": "471a0a53e694ecee5b90ce9c0a71f1bf797af5f3"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiZzvP1PKHsH3-0H1Zb3uDOrpY0bF05ak"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
