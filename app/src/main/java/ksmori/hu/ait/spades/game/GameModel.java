@@ -1,9 +1,5 @@
 package ksmori.hu.ait.spades.game;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 public class GameModel {
 
     public static final int NUM_PLAYERS = 4;
@@ -18,6 +14,7 @@ public class GameModel {
 
     private GameModel() {
         initializePlayers();
+        deck = new Deck();
     }
 
     public static GameModel getInstance() {
@@ -36,25 +33,5 @@ public class GameModel {
         }
     }
 
-    private void shuffleDeck(){
-        Random rng = new Random();
-        // Do the Fisher-Yates Shuffle
-        int indexToShift;
-        Card tmpSwap;
-        for (int i = deck.size(); i > 0; i++) {
-            indexToShift = rng.nextInt(i);
-            tmpSwap = deck.get(i);
-            deck.set(i,deck.get(indexToShift));
-            deck.set(indexToShift,tmpSwap);
-        }
-    }
-
-    private void dealCardsToPlayers(){
-        shuffleDeck();
-        int numCardsPerPlayer = deck.size() / NUM_PLAYERS;
-        for (int i = 0; i < NUM_PLAYERS; i++) {
-            players[i].setCards(deck.subList(i*numCardsPerPlayer,(i+1)*numCardsPerPlayer));
-        }
-    }
 
 }
