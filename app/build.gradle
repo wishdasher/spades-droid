@@ -25,5 +25,6 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.google.android.gms:play-services-games:10.2.4' // Use Google Play Games
     testCompile 'junit:junit:4.12'
 }
