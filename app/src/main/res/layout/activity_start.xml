@@ -10,9 +10,18 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="ksmori.hu.ait.spades.StartActivity">
 
-    <EditText
-        android:id="@+id/etCLI"
+
+    <!-- sign-in button -->
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/sign_in_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <!-- sign-out button -->
+    <Button
+        android:id="@+id/sign_out_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Enter commands here" />
+        android:text="Sign Out"
+        android:visibility="gone" />
 </RelativeLayout>
