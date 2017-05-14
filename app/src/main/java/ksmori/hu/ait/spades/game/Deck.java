@@ -6,9 +6,7 @@ package ksmori.hu.ait.spades.game;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class Deck {
 
@@ -33,11 +31,11 @@ public class Deck {
         checkRep();
     }
 
-    List<Set<Card>> deal(int numPlayers) {
-        List<Set<Card>> hands = new ArrayList<>();
+    List<List<Card>> deal(int numPlayers) {
+        List<List<Card>> hands = new ArrayList<>();
         int cardsEach = deck.size() / numPlayers;
         for (int p = 0; p < numPlayers; p++) {
-            hands.add(new HashSet<Card>(deck.subList(cardsEach * p, cardsEach * (p+1))));
+            hands.add(deck.subList(cardsEach * p, cardsEach * (p+1)));
         }
         return hands;
     }

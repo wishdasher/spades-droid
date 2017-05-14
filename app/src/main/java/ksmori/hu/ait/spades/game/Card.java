@@ -41,6 +41,9 @@ public class Card implements Comparable {
 
 
     public Card(int value, Suit suit) {
+        if (value == 1) {
+            value = ACE;
+        }
         this.suit = suit;
         this.value = value;
         String res = determineImageName();
