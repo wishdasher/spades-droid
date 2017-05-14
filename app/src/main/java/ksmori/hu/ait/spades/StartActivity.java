@@ -51,6 +51,8 @@ public class StartActivity extends AppCompatActivity implements
             // auto sign in
             mGoogleApiClient.connect();
         }
+        //TODO IS THIS WHAT WE WANT?
+        //mGoogleApiClient.connect(GoogleApiClient.SIGN_IN_MODE_OPTIONAL);
     }
 
     @Override

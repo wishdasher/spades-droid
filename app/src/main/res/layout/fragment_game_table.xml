@@ -1,0 +1,65 @@
+<android.support.percent.PercentRelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="#123456"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/ll_player_box_top"
+        android:orientation="horizontal"
+        android:layout_centerHorizontal="true"
+        android:background="#098765"
+        android:layout_alignParentTop="true"
+        android:layout_width="wrap_content"
+        app:layout_heightPercent="33%">
+        <LinearLayout
+            android:id="@+id/ll_info_box_top"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#aaaaaa"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/iv_player_card_top"
+            android:gravity="right">
+            <TextView
+                android:id="@+id/tv_player_name_top"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#ffffff"
+                android:textSize="20sp"
+                android:text="NORTH"/>
+            <TextView
+                android:id="@+id/tv_player_bid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#ffffff"
+                android:textSize="18sp"
+                android:text="Bid: 4"/>
+            <TextView
+                android:id="@+id/tv_player_tricks"
+                android:background="#ffffff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:text="Tricks: 0"/>
+        </LinearLayout>
+        <ImageView
+            android:id="@+id/iv_move_indicator_top"
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:src="@drawable/move_indicator_on"
+            android:layout_alignParentBottom="true"
+            android:layout_toLeftOf="@+id/iv_player_card_top"
+            android:layout_margin="8dp"/>
+        <ImageView
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:id="@+id/iv_player_card_top"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/card_2_of_clubs"/>
+    </RelativeLayout>
+
+</android.support.percent.PercentRelativeLayout>

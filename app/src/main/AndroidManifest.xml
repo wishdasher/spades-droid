@@ -16,15 +16,17 @@
 
         <activity android:name=".StartActivity"
             android:screenOrientation="portrait">
+        </activity>
+        <activity android:name=".SpadesGameActivity"
+            android:label="@string/title_activity_game"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity android:name=".SpadesGameActivity"
-            android:screenOrientation="portrait">
-            
         </activity>
     </application>
 
