@@ -17,4 +17,13 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+
+    <style name="GameTableTheme" parent="android:Theme">
+        <item name="android:textViewStyle">@style/GameTableTextViewStyle</item>
+    </style>
+
+    <style name="GameTableTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:textColor">#ffffff</item>
+        <item name="android:textStyle">normal</item>
+    </style>
 </resources>

@@ -1,5 +1,6 @@
 package ksmori.hu.ait.spades;
 
+import android.content.res.Resources;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -25,7 +26,6 @@ public class SpadesGameActivity extends AppCompatActivity {
         setupFragments();
     }
 
-    // I have ZERO CLUE why nothing shows up
     public void setupFragments() {
         GameTableFragment mGameTableFragment = new GameTableFragment();
 
@@ -37,16 +37,25 @@ public class SpadesGameActivity extends AppCompatActivity {
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-        LinearLayout layout = (LinearLayout) findViewById(R.id.ll_player_box_top);
-        ImageView imageView = (ImageView) findViewById(R.id.iv_player_card_top);
-        LinearLayout textLayout = (LinearLayout) findViewById(R.id.ll_info_box_top);
+        final String[] positions = {"top","left","bottom","right"};
+        for(String str : positions) {
+            LinearLayout layout = (LinearLayout) findViewById(getResources().getIdentifier(
+                    "ll_player_box_" + str, "id", "ksmori.hu.ait.spades")
+            );
+            ImageView imageView = (ImageView) findViewById(getResources().getIdentifier(
+                    "iv_player_card_" + str, "id", "ksmori.hu.ait.spades")
+            );
+            LinearLayout textLayout = (LinearLayout) findViewById(getResources().getIdentifier(
+                    "ll_info_box_" + str, "id", "ksmori.hu.ait.spades")
+            );
 
-        if(textLayout.getWidth()+imageView.getWidth() != 0) {
-            layout.getLayoutParams().width = textLayout.getWidth() + imageView.getWidth()
-                    + (int)getResources().getDimension(R.dimen.spacing_card_info);
-            layout.requestLayout();
-        } else {
-            Log.d("SpadesGameActivity","Failed to resize layout: could not retrieve view dimensions");
+            if (textLayout.getWidth() + imageView.getWidth() != 0) {
+                layout.getLayoutParams().width = textLayout.getWidth() + imageView.getWidth()
+                        + (int) getResources().getDimension(R.dimen.spacing_card_info);
+                layout.requestLayout();
+            } else {
+                Log.d("SpadesGameActivity", "Failed to resize layout: could not retrieve view dimensions");
+            }
         }
     }
 }

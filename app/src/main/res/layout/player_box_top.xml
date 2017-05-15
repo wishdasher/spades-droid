@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    tools:showIn="@layout/fragment_game_table">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/ll_info_box_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentTop="true"
+            android:gravity="end">
+
+            <TextView
+                android:id="@+id/tv_player_name_top"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:text="NORTH" />
+
+            <TextView
+                android:id="@+id/tv_player_bid_top"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:text="Bid: 4" />
+
+            <TextView
+                android:id="@+id/tv_player_tricks_top"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:text="Tricks: 0" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/iv_move_indicator_top"
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:src="@drawable/move_indicator_on"
+            android:layout_alignParentBottom="true"
+            android:layout_alignRight="@+id/ll_info_box_top"
+            android:layout_margin="4dp" />
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/iv_player_card_top"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/spacing_card_info"
+            android:src="@drawable/card_2_of_clubs"
+            android:adjustViewBounds="true"
+            android:scaleType="centerInside" />
+    </FrameLayout>
+</merge>

@@ -2,76 +2,54 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#123456"
+    android:background="@drawable/bkg"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:theme="@style/GameTableTheme">
 
 
     <LinearLayout
         android:id="@+id/ll_player_box_top"
         android:layout_width="wrap_content"
-        app:layout_heightPercent="33%"
+        app:layout_heightPercent="32%"
         android:orientation="horizontal"
-        android:layout_centerInParent="true"
-        android:layout_alignParentTop="true"
-        android:background="#1166aa">
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="#aaaaaa">
-            <LinearLayout
-                android:id="@+id/ll_info_box_top"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_centerVertical="true"
-                android:gravity="end"
-                android:background="#ff00e5">
-                <TextView
-                    android:id="@+id/tv_player_name_top"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="#ffffff"
-                    android:textSize="20sp"
-                    android:text="NORTH"/>
-                <TextView
-                    android:id="@+id/tv_player_bid"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="#ffffff"
-                    android:textSize="18sp"
-                    android:text="Bid: 4"/>
-                <TextView
-                    android:id="@+id/tv_player_tricks"
-                    android:background="#ffffff"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="18sp"
-                    android:text="Tricks: 0"/>
-            </LinearLayout>
-            <ImageView
-                android:id="@+id/iv_move_indicator_top"
-                android:layout_width="6dp"
-                android:layout_height="6dp"
-                android:src="@drawable/move_indicator_on"
-                android:layout_alignParentBottom="true"
-                android:layout_alignRight="@+id/ll_info_box_top"
-                android:layout_margin="4dp"/>
-        </RelativeLayout>
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="#ff0000">
-            <ImageView
-                android:id="@+id/iv_player_card_top"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="@dimen/spacing_card_info"
-                android:src="@drawable/card_2_of_clubs"
-                android:background="#00ff00"
-                android:adjustViewBounds="true"
-                android:scaleType="centerInside"/>
-        </FrameLayout>
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true">
+
+        <include layout="@layout/player_box_top" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_player_box_left"
+        android:layout_width="wrap_content"
+        app:layout_heightPercent="32%"
+        android:orientation="horizontal"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true">
+
+        <include layout="@layout/player_box_left" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_player_box_right"
+        android:layout_width="wrap_content"
+        app:layout_heightPercent="32%"
+        android:orientation="horizontal"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true">
+
+        <include layout="@layout/player_box_right" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_player_box_bottom"
+        android:layout_width="wrap_content"
+        app:layout_heightPercent="32%"
+        android:orientation="horizontal"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true">
+
+        <include layout="@layout/player_box_bottom" />
     </LinearLayout>
 
 </android.support.percent.PercentRelativeLayout>
