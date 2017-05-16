@@ -8,48 +8,36 @@
     android:theme="@style/GameTableTheme">
 
 
-    <LinearLayout
-        android:id="@+id/ll_player_box_top"
+    <include layout="@layout/player_box_top"
         android:layout_width="wrap_content"
         app:layout_heightPercent="32%"
+        android:layout_height="0dp"
         android:orientation="horizontal"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true">
+        android:layout_alignParentTop="true" />
 
-        <include layout="@layout/player_box_top" />
-    </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/ll_player_box_left"
+    <include layout="@layout/player_box_left"
         android:layout_width="wrap_content"
+        android:layout_height="0dp"
         app:layout_heightPercent="32%"
         android:orientation="horizontal"
         android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true">
+        android:layout_alignParentLeft="true" />
 
-        <include layout="@layout/player_box_left" />
-    </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/ll_player_box_right"
+    <include layout="@layout/player_box_right"
         android:layout_width="wrap_content"
+        android:layout_height="0dp"
         app:layout_heightPercent="32%"
-        android:orientation="horizontal"
         android:layout_centerVertical="true"
-        android:layout_alignParentRight="true">
+        android:layout_alignParentRight="true" />
 
-        <include layout="@layout/player_box_right" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/ll_player_box_bottom"
+    <include layout="@layout/player_box_bottom"
         android:layout_width="wrap_content"
+        android:layout_height="0dp"
         app:layout_heightPercent="32%"
-        android:orientation="horizontal"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true">
-
-        <include layout="@layout/player_box_bottom" />
-    </LinearLayout>
+        android:layout_alignParentBottom="true" />
 
 </android.support.percent.PercentRelativeLayout>
