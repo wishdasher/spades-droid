@@ -28,12 +28,14 @@ dependencies {
     compile project(':BaseGameUtils')
     // Import and use Google Play's provided utilities
     // Let users sign in to Google Play
+    // Identify Nearby users/participants
     // Use the PercentRelativeLayout
     // Use the Design Support Library for AppBarLayout and Toolbar
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.google.android.gms:play-services-games:10.2.4'
     compile 'com.google.android.gms:play-services-auth:10.2.4'
     compile 'com.android.support:percent:25.3.1'
+    compile 'com.google.android.gms:play-services-nearby:10.2.4'
     compile 'com.android.support:design:25.3.1'
     compile 'com.android.support:support-v4:25.3.1'
     testCompile 'junit:junit:4.12'

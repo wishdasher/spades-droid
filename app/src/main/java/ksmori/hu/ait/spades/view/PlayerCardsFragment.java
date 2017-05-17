@@ -17,7 +17,7 @@ import ksmori.hu.ait.spades.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PlayerCardsFragment extends Fragment {
+public class PlayerCardsFragment extends FragmentTagged {
 
 
     public static final String TAG = "PlayerCardsFragment";
@@ -30,6 +30,11 @@ public class PlayerCardsFragment extends Fragment {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_player_cards, container, false);
         return rootView;
+    }
+
+    @Override
+    public String getTAG() {
+        return TAG;
     }
 
     @Override

@@ -1,15 +1,10 @@
 package ksmori.hu.ait.spades;
 
-import android.content.res.Resources;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.widget.HorizontalScrollView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import ksmori.hu.ait.spades.view.GameTableFragment;
 import ksmori.hu.ait.spades.view.PlayerCardsFragment;
