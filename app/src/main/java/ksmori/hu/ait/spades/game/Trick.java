@@ -12,7 +12,15 @@ public class Trick {
         plays = new ArrayList<>(GameModel.NUM_PLAYERS);
     }
 
+    public Card.Suit getStartingSuit() {
+        return startingSuit;
+    }
+
     public void add(Play play) {
+        if (plays.size() == 0) {
+            startingSuit = play.getCard().getSuit();
+
+        }
         plays.add(play);
     }
 

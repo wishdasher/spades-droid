@@ -31,6 +31,7 @@ public class Team {
 
     public int calculateRoundScore() {
         //TODO: calculate based on bids and
+        return 0;
     }
 
     public void updateScore(int points, int bags) {
