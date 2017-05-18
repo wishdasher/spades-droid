@@ -1,4 +1,4 @@
-package ksmori.hu.ait.spades.game;
+package ksmori.hu.ait.spades.model;
 
 import android.content.res.Resources;
 import android.support.annotation.NonNull;

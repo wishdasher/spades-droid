@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 
-import ksmori.hu.ait.spades.game.GameModel;
+import ksmori.hu.ait.spades.model.GameModel;
 import ksmori.hu.ait.spades.view.GameTableFragment;
 import ksmori.hu.ait.spades.view.PlayerCardsFragment;
 

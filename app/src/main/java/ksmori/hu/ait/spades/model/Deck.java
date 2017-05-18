@@ -1,4 +1,4 @@
-package ksmori.hu.ait.spades.game;
+package ksmori.hu.ait.spades.model;
 
 /*
  * A deck with the 52 standard cards

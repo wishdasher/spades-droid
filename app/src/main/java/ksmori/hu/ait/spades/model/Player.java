@@ -1,4 +1,4 @@
-package ksmori.hu.ait.spades.game;
+package ksmori.hu.ait.spades.model;
 
 import java.util.Collections;
 import java.util.List;
