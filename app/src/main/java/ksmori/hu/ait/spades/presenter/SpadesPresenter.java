@@ -1,25 +1,39 @@
 package ksmori.hu.ait.spades.presenter;
 
+import java.util.List;
+
 import ksmori.hu.ait.spades.SpadesGameScreen;
 import ksmori.hu.ait.spades.model.Card;
 import ksmori.hu.ait.spades.model.Player;
 
 public class SpadesPresenter extends Presenter<SpadesGameScreen> {
-    Player getCurrentPlayer(){
+    public Player getCurrentPlayer(){
         return null;
     }
-    Player getLeftPlayer(){
+    public Player getLeftPlayer(){
         return null;
     }
-    Player getTopPlayer(){
+    public Player getTopPlayer(){
         return null;
     }
-    Player getRightPlayer(){
+    public Player getRightPlayer(){
+        return null;
+    }
+
+    public void startNewGame(){
+
+    }
+
+    public Player getBiddingPlayer(){
+        return null;
+    }
+
+    public List<Card> getCards(Player player){
         return null;
     }
 
 
-    boolean playCard(Card card){
+    public boolean playCard(Card card){
         return false;
     }
 }

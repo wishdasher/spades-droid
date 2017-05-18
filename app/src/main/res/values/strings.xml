@@ -6,5 +6,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="pass_phone_text">Pass the phone to the player on your left</string>
+    <string name="passed_phone_btn_text">Done!</string>
 
 </resources>

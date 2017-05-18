@@ -1,5 +1,7 @@
 package ksmori.hu.ait.spades;
 
 public interface SpadesGameScreen {
-    public void displayInvalidMove();
+    public void displayBidding();
+
+    public void displayGame();
 }
