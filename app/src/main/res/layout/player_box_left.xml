@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    tools:showIn="@layout/fragment_game_table">
+    android:id="@+id/player_box_left"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -47,17 +50,12 @@
             android:layout_margin="4dp" />
     </RelativeLayout>
 
-    <FrameLayout
+    <ImageView
+        android:id="@+id/iv_player_card_left"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent">
-
-        <ImageView
-            android:id="@+id/iv_player_card_left"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/spacing_card_info"
-            android:src="@drawable/card_2_of_clubs"
-            android:adjustViewBounds="true"
-            android:scaleType="centerInside" />
-    </FrameLayout>
-</merge>
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/spacing_card_info"
+        android:src="@drawable/card_2_of_clubs"
+        android:adjustViewBounds="true"
+        android:scaleType="centerInside" />
+</LinearLayout>

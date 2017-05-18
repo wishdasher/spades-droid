@@ -1,26 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    tools:showIn="@layout/fragment_game_table">
+    android:id="@+id/player_box_bottom"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
 
-
-    <FrameLayout
+    <ImageView
+        android:id="@+id/iv_player_card_bottom"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent">
-
-        <ImageView
-            android:id="@+id/iv_player_card_bottom"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginRight="@dimen/spacing_card_info"
-            android:src="@drawable/card_2_of_clubs"
-            android:adjustViewBounds="true"
-            android:scaleType="centerInside" />
-    </FrameLayout>
+        android:layout_height="match_parent"
+        android:layout_marginRight="@dimen/spacing_card_info"
+        android:src="@drawable/card_2_of_clubs"
+        android:adjustViewBounds="true"
+        android:scaleType="centerInside" />
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/iv_move_indicator_bottom"
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:src="@drawable/move_indicator_on"
+            android:layout_alignParentTop="true"
+            android:layout_alignLeft="@+id/ll_info_box_bottom"
+            android:layout_margin="4dp" />
 
         <LinearLayout
             android:id="@+id/ll_info_box_bottom"
@@ -51,14 +57,6 @@
                 android:textSize="18sp"
                 android:text="Tricks: 0" />
         </LinearLayout>
-
-        <ImageView
-            android:id="@+id/iv_move_indicator_bottom"
-            android:layout_width="6dp"
-            android:layout_height="6dp"
-            android:src="@drawable/move_indicator_on"
-            android:layout_alignParentTop="true"
-            android:layout_alignLeft="@+id/ll_info_box_bottom"
-            android:layout_margin="4dp" />
     </RelativeLayout>
-</merge>
+
+</LinearLayout>
