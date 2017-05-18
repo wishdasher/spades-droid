@@ -9,9 +9,13 @@ public class Team {
     private int score;
     private int bags;
 
+    private String name;
+
     public Team(Player a, Player b) {
         playerA = a;
         playerB = b;
+        name = playerA.getName() + "&" + playerB.getName();
+
         score = 0;
         bags = 0;
         checkRep();
@@ -23,6 +27,10 @@ public class Team {
 
     public Player[] getPlayers() {
         return new Player[]{playerA, playerB};
+    }
+
+    public int calculateRoundScore() {
+        //TODO: calculate based on bids and
     }
 
     public void updateScore(int points, int bags) {
@@ -41,6 +49,10 @@ public class Team {
         } else {
             return score - bags;
         }
+    }
+
+    public String getName() {
+        return name;
     }
 
 }

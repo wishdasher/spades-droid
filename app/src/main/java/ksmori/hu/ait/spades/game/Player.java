@@ -1,5 +1,6 @@
 package ksmori.hu.ait.spades.game;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Player {
@@ -32,6 +33,7 @@ public class Player {
 
     public void setHand(List<Card> hand) {
         this.hand = hand;
+        Collections.sort(hand);
     }
 
     public boolean isHostPlayer() {
