@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Deck {
 
-    private List<Card> deck;
+    private final List<Card> deck;
 
     public Deck() {
         deck = new ArrayList<>();

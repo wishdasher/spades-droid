@@ -3,8 +3,8 @@ package ksmori.hu.ait.spades.game;
 
 public class Team {
 
-    private Player playerA;
-    private Player playerB;
+    private final Player playerA;
+    private final Player playerB;
 
     private int score;
     private int bags;

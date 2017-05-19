@@ -13,21 +13,25 @@ public class GameModel {
     private Player south;
     private Player west;
 
+    private Team teamNS;
+    private Team teamEW;
+
     private boolean biddingPhase;
     private boolean spadesBroken;
 
     private List<Player> players;
 
     private Player startingPlayer;
+    private Player nextPlayer;
 
-    private Deck deck;
+    private int roundCount;
+
+    private Deck deck = new Deck();
 
     private static GameModel instance = null;
 
     private GameModel() {
-        initializePlayers();
-        setPlayersPositions();
-        deck = new Deck();
+        //needs to be started
     }
 
     public static GameModel getInstance() {
@@ -37,8 +41,21 @@ public class GameModel {
         return instance;
     }
 
-    private void initializePlayers() {
-        //do something linky with players and devices, host player should be north
+    public void start(String p1, String p2, String p3, String p4) {
+        initializePlayers(p1, p2, p3, p4);
+        setPlayersPositions();
+        roundCount = 0;
+        resetGame();
+    }
+
+    private void initializePlayers(String p1, String p2, String p3, String p4) {
+        north = new Player(p1, true);
+        east = new Player(p2, false);
+        south = new Player(p3, false);
+        west = new Player(p4, false);
+
+        teamNS = new Team(north, south);
+        teamEW = new Team(east, west);
 
         players = new ArrayList<>(Arrays.asList(north, east, south, west));
     }
@@ -59,7 +76,15 @@ public class GameModel {
     }
 
     public void resetGame() {
+        roundCount++;
+        if (startingPlayer == null) {
+            startingPlayer = north;
+        } else {
+            startingPlayer = startingPlayer.left;
+        }
+        nextPlayer = startingPlayer;
         for (Player player : players) {
+            //clears hand and sets bid to none
             player.reset();
         }
         biddingPhase = true;
@@ -69,6 +94,38 @@ public class GameModel {
         for (int p = 0; p < players.size(); p++) {
             players.get(p).setHand(hands.get(p));
         }
+    }
+
+    public Player getNorth() {
+        return north;
+    }
+
+    public Player getEast() {
+        return east;
+    }
+
+    public Player getSouth() {
+        return south;
+    }
+
+    public Player getWest() {
+        return west;
+    }
+
+    public Team getTeamNS() {
+        return teamNS;
+    }
+
+    public Team getTeamEW() {
+        return teamEW;
+    }
+
+    public boolean isBiddingPhase() {
+        return biddingPhase;
+    }
+
+    public boolean isSpadesBroken() {
+        return spadesBroken;
     }
 
 }

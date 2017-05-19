@@ -19,9 +19,9 @@ public class Card implements Comparable {
         }
     }
 
-    private Suit suit;
-    private int value; //2 through 14 because Ace is the highest value
-    private int imageResource;
+    private final Suit suit;
+    private final int value; //2 through 14 because Ace is the highest value
+    private final int imageResource;
 
     public static final int ACE = 14;
     public static final int JACK = 11;
@@ -47,7 +47,7 @@ public class Card implements Comparable {
         this.suit = suit;
         this.value = value;
         String res = determineImageName();
-        Resources.getSystem().getIdentifier(res, "drawable", "ksmori.hu.ait.spades");
+        imageResource = Resources.getSystem().getIdentifier(res, "drawable", "ksmori.hu.ait.spades");
     }
 
     private String determineImageName() {

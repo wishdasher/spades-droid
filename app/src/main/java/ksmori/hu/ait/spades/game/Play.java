@@ -2,8 +2,8 @@ package ksmori.hu.ait.spades.game;
 
 public class Play {
 
-    private Player player;
-    private Card card;
+    private final Player player;
+    private final Card card;
 
     public Play(Player player, Card card) {
         this.player = player;

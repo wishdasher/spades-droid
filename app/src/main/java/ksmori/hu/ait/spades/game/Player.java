@@ -5,16 +5,17 @@ import java.util.List;
 
 public class Player {
 
-    private String name;
+    private final String name;
+    private final boolean isHostPlayer;
     private List<Card> hand;
-    private boolean isHostPlayer;
     protected Player left;
     protected Player partner;
     protected Player right;
     private Bid bid;
 
     public Player(String name, boolean isHostPlayer) {
-
+        this.name = name;
+        this.isHostPlayer = isHostPlayer;
     }
 
     public void reset() {

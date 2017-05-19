@@ -24,6 +24,7 @@ public class SpadesGameActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         setupFragments();
+        GameModel.getInstance().start("N", "E", "S", "W");
     }
 
     public void setupFragments() {
@@ -36,5 +37,7 @@ public class SpadesGameActivity extends AppCompatActivity {
         ft.add(R.id.fl_player_cards_container,mPlayerCardsFragment,PlayerCardsFragment.TAG);
         ft.commit();
     }
+
+
 
 }
