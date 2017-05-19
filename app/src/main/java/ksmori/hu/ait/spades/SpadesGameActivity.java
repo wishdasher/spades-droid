@@ -20,16 +20,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_spades_game);
 
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        mSpadesPresenter = new SpadesPresenter();
-        mSpadesPresenter.startNewGame();
-        // Tell all the Card ImageViews to have onTouch & onSwipe Listeners
     }
 
     public void setupGameTableFragment() {
