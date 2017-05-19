@@ -12,6 +12,7 @@ public class Player {
     protected Player partner;
     protected Player right;
     private Bid bid;
+    private int tricksTaken;
 
     public Player(String name, boolean isHostPlayer) {
         this.name = name;
@@ -21,6 +22,7 @@ public class Player {
     public void reset() {
         hand.clear();
         bid = Bid.NONE;
+        tricksTaken = 0;
     }
 
 
@@ -47,5 +49,13 @@ public class Player {
 
     public void setBid(Bid bid) {
         this.bid = bid;
+    }
+
+    public int getTricksTaken() {
+        return tricksTaken;
+    }
+
+    public void takeTrick() {
+        tricksTaken++;
     }
 }
