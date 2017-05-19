@@ -25,6 +25,7 @@ public class GameModel {
     private Player nextPlayer;
 
     private int roundCount;
+    private int trickCount;
 
     private Deck deck = new Deck();
 
@@ -77,6 +78,7 @@ public class GameModel {
 
     public void resetGame() {
         roundCount++;
+        trickCount = 0;
         if (startingPlayer == null) {
             startingPlayer = north;
         } else {
