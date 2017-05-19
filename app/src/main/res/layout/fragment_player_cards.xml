@@ -29,49 +29,49 @@
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerInside"
-                android:src="@drawable/card_2_of_diamonds"/>
+                android:src="@drawable/none_card"/>
             <ImageView
                 android:id="@+id/iv_row_top_card2"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerInside"
-                android:src="@drawable/card_2_of_diamonds"/>
+                android:src="@drawable/none_card"/>
             <ImageView
                 android:id="@+id/iv_row_top_card3"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerInside"
-                android:src="@drawable/card_2_of_diamonds"/>
+                android:src="@drawable/none_card"/>
             <ImageView
                 android:id="@+id/iv_row_top_card4"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerInside"
-                android:src="@drawable/card_2_of_diamonds"/>
+                android:src="@drawable/none_card"/>
             <ImageView
                 android:id="@+id/iv_row_top_card5"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerInside"
-                android:src="@drawable/card_2_of_diamonds"/>
+                android:src="@drawable/none_card"/>
             <ImageView
                 android:id="@+id/iv_row_top_card6"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerInside"
-                android:src="@drawable/card_2_of_diamonds"/>
+                android:src="@drawable/none_card"/>
             <ImageView
                 android:id="@+id/iv_row_top_card7"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerInside"
-                android:src="@drawable/card_2_of_diamonds"/>
+                android:src="@drawable/none_card"/>
 
         </LinearLayout>
 
@@ -96,42 +96,42 @@
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerInside"
-                android:src="@drawable/card_2_of_diamonds"/>
+                android:src="@drawable/none_card"/>
             <ImageView
                 android:id="@+id/iv_row_bottom_card2"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerInside"
-                android:src="@drawable/card_2_of_diamonds"/>
+                android:src="@drawable/none_card"/>
             <ImageView
                 android:id="@+id/iv_row_bottom_card3"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerInside"
-                android:src="@drawable/card_2_of_diamonds"/>
+                android:src="@drawable/none_card"/>
             <ImageView
                 android:id="@+id/iv_row_bottom_card4"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerInside"
-                android:src="@drawable/card_2_of_diamonds"/>
+                android:src="@drawable/none_card"/>
             <ImageView
                 android:id="@+id/iv_row_bottom_card5"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerInside"
-                android:src="@drawable/card_2_of_diamonds"/>
+                android:src="@drawable/none_card"/>
             <ImageView
                 android:id="@+id/iv_row_bottom_card6"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerInside"
-                android:src="@drawable/card_2_of_diamonds"/>
+                android:src="@drawable/none_card"/>
             <ImageView
                 android:id="@+id/iv_row_bottom_card7"
                 android:layout_width="wrap_content"
