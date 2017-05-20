@@ -1,9 +1,14 @@
 package ksmori.hu.ait.spades.model;
 
 import android.content.res.Resources;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
-public class Card implements Comparable {
+import java.io.Serializable;
+
+public class Card implements Comparable, Serializable {
+
 
     public enum Suit {
         DIAMOND(0), CLUB(1), HEART(2), SPADE(3);
@@ -21,7 +26,7 @@ public class Card implements Comparable {
 
     private final Suit suit;
     private final int value; //2 through 14 because Ace is the highest value
-    private final int imageResource;
+    private final String imageResourceName;
 
     public static final int ACE = 14;
     public static final int JACK = 11;
@@ -41,13 +46,19 @@ public class Card implements Comparable {
 
 
     public Card(int value, Suit suit) {
-        if (value == 1) {
-            value = ACE;
+        if (value > MAX_VALUE || value < MIN_VALUE) {
+            throw new IllegalArgumentException("Card value must be between "
+                    + MIN_VALUE + " and " + MAX_VALUE +", incl.");
         }
         this.suit = suit;
         this.value = value;
-        String res = determineImageName();
-        imageResource = Resources.getSystem().getIdentifier(res, "drawable", "ksmori.hu.ait.spades");
+        imageResourceName = determineImageName();
+    }
+
+
+
+    public String getImageResourceName() {
+        return imageResourceName;
     }
 
     private String determineImageName() {
@@ -69,7 +80,7 @@ public class Card implements Comparable {
                 strTitle = "" + value;
         }
         String strSuit = suit.name().toLowerCase();
-        return "card_" + strTitle + "_of_" + strSuit + "s.png";
+        return "card_" + strTitle + "_of_" + strSuit + "s";
     }
 
     @Override

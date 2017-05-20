@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import ksmori.hu.ait.spades.model.Card;
@@ -20,7 +22,15 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_spades_game);
 
+        setupGameTableFragment();
+        List<Card> playerCards = new ArrayList<>();
+        for (int i = Card.MIN_VALUE; i <= Card.MAX_VALUE; i++) {
+            playerCards.add(new Card(i, Card.Suit.SPADE));
+        }
+        setupPlayerCardsFragment(playerCards);
     }
 
     public void setupGameTableFragment() {
@@ -40,6 +50,15 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     }
 
     private void setupPlayerCardsFragment(List<Card> playerCards) {
+        PlayerCardsFragment pcf = new PlayerCardsFragment();
+        Bundle argBundle = new Bundle();
+        argBundle.putSerializable(PlayerCardsFragment.CARDS_KEY,(Serializable) playerCards);
+        pcf.setArguments(argBundle);
+
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.add(R.id.fl_player_cards_container, pcf,PlayerCardsFragment.TAG);
+        ft.commit();
     }
 
     @Override
