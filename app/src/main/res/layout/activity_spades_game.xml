@@ -49,13 +49,15 @@
     <FrameLayout
         android:id="@+id/fl_game_table_container"
         android:layout_width="match_parent"
-        android:layout_below="@id/appbar"
-        app:layout_heightPercent="60%"></FrameLayout>
+        android:layout_height="0dp"
+        app:layout_heightPercent="60%"
+        android:layout_below="@id/appbar"/>
 
     <FrameLayout
         android:id="@+id/fl_player_cards_container"
         android:layout_width="match_parent"
-        android:layout_below="@id/fl_game_table_container"
-        app:layout_heightPercent="40%"></FrameLayout>
+        android:layout_height="0dp"
+        app:layout_heightPercent="40%"
+        android:layout_below="@id/fl_game_table_container"/>
 
 </android.support.percent.PercentRelativeLayout>

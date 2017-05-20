@@ -3,38 +3,23 @@ package ksmori.hu.ait.spades.view;
 import android.content.Context;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
+import android.util.Log;
 import android.view.MotionEvent;
 
-public class CardImageView extends AppCompatImageView {
+public class CardImageView extends AppCompatImageView{
 
-
-    private GestureDetector touchHandler;
+    private static final String DEBUG_TAG = "CardImageView";
 
     public CardImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
-
-        touchHandler=new GestureDetector(getContext(),new GestureDetector.SimpleOnGestureListener(){
-            @Override
-            public boolean onDown(MotionEvent event) {
-                // triggers first for both single tap and long press
-                bringToFront();
-                return true;
-            }
-
-            @Override
-            public boolean onSingleTapUp(MotionEvent event) {
-                resetHandPosition(event);
-                return true;
-            }
-
-        });
     }
 
-    private void resetHandPosition(MotionEvent event) {
-        
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if(event.getActionMasked() == MotionEvent.ACTION_DOWN){
+            Log.d(DEBUG_TAG,"onTouchEvent("+this.toString()+", DOWN)");
+        }
+        // Don't let touch events trigger for views behind this one.
+        return true;
     }
-
-
-
 }

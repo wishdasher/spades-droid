@@ -4,7 +4,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -16,8 +18,10 @@ import ksmori.hu.ait.spades.presenter.SpadesPresenter;
 import ksmori.hu.ait.spades.view.GameTableFragment;
 import ksmori.hu.ait.spades.view.PlayerCardsFragment;
 
-public class SpadesGameActivity extends AppCompatActivity implements SpadesGameScreen{
+public class SpadesGameActivity extends AppCompatActivity implements SpadesGameScreen,
+        View.OnTouchListener{
 
+    private static final String DEBUG_TAG = "SpadesGameActivity";
     private SpadesPresenter mSpadesPresenter;
 
     @Override
@@ -40,15 +44,6 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         ft.commit();
     }
 
-
-    @Override
-    public void displayBidding() {
-        Player player = mSpadesPresenter.getBiddingPlayer();
-        List<Card> playerCards = mSpadesPresenter.getCards(player);
-        setupPlayerCardsFragment(playerCards);
-
-    }
-
     private void setupPlayerCardsFragment(List<Card> playerCards) {
         PlayerCardsFragment pcf = new PlayerCardsFragment();
         Bundle argBundle = new Bundle();
@@ -61,8 +56,23 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         ft.commit();
     }
 
+
+    @Override
+    public void displayBidding() {
+        Player player = mSpadesPresenter.getBiddingPlayer();
+        List<Card> playerCards = mSpadesPresenter.getCards(player);
+        setupPlayerCardsFragment(playerCards);
+
+    }
+
     @Override
     public void displayGame() {
 
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        Log.d(DEBUG_TAG,"onTouch("+v.toString()+", ??)");
+        return false;
     }
 }

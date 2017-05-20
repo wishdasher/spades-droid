@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
@@ -22,13 +23,14 @@ import ksmori.hu.ait.spades.model.Card;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PlayerCardsFragment extends FragmentTagged {
+public class PlayerCardsFragment extends FragmentTagged implements View.OnTouchListener{
 
     public static final String TAG = "PlayerCardsFragment";
     public static final String CARDS_KEY = "CARDS_KEY";
 
     private static final int ROW_LENGTH = 7;
     private static final String[] rows = {"top", "bottom"};
+    private static final String DEBUG_TAG = TAG;
     private List<Card> playerCards;
     private View rootView;
 
@@ -61,8 +63,22 @@ public class PlayerCardsFragment extends FragmentTagged {
             public void run() {
                 loadContents();
                 correctLayout();
+                attachListeners();
             }
         });
+    }
+
+    private void attachListeners() {
+        for (String row : rows) {
+            for (int i = 1; i <= 7; i++) {
+                ImageView iv = (ImageView) getView().findViewById(getResources()
+                        .getIdentifier("iv_row_"+row+"_card"+i,"id","ksmori.hu.ait.spades"));
+                if(iv.getWidth()!=0){
+                    iv.setOnTouchListener(this);
+//                    iv.setOnTouchListener((View.OnTouchListener)getActivity());
+                }
+            }
+        }
     }
 
     private void correctLayout() {
@@ -105,4 +121,14 @@ public class PlayerCardsFragment extends FragmentTagged {
         }
     }
 
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        // give the activity a chance to handle the touch
+        if(((View.OnTouchListener) getActivity()).onTouch(v, event)){
+            return true;
+        }
+        Log.d(DEBUG_TAG,"onTouch("+v.toString()+", ??)");
+        return false;
+    }
 }
