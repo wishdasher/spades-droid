@@ -55,6 +55,7 @@ public class SpadesGameRootLayout extends PercentRelativeLayout{
 
         switch (action) {
             case MotionEvent.ACTION_MOVE:
+                Log.d(DEBUG_TAG,"Intercepted MOVE: "+ev.toString());
                 return true;
 //                if (mIsDragging) {
 //                    // We're currently dragging, so yes, intercept the touch event!
