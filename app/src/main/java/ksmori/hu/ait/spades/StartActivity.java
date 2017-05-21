@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import ksmori.hu.ait.spades.game.Game;
+import ksmori.hu.ait.spades.model.Game;
 import ksmori.hu.ait.spades.game.Play;
 
 public class StartActivity extends AppCompatActivity {

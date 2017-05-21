@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ksmori.hu.ait.spades.view.SpadesGameRootLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_root_game_activity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="ksmori.hu.ait.spades.SpadesGameActivity">
@@ -46,16 +47,29 @@
     </android.support.design.widget.AppBarLayout>
 
 
+    <ksmori.hu.ait.spades.view.CardImageView
+        android:id="@+id/iv_active_card"
+        android:layout_width="wrap_content"
+        android:layout_height="200dp"
+        android:src="@drawable/card_king_of_hearts"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:background="#000000"
+        android:adjustViewBounds="true"
+        android:scaleType="centerInside"/>
+
     <FrameLayout
         android:id="@+id/fl_game_table_container"
         android:layout_width="match_parent"
-        android:layout_below="@id/appbar"
-        app:layout_heightPercent="60%"></FrameLayout>
+        android:layout_height="0dp"
+        app:layout_heightPercent="60%"
+        android:layout_below="@id/appbar"/>
 
     <FrameLayout
         android:id="@+id/fl_player_cards_container"
         android:layout_width="match_parent"
-        android:layout_below="@id/fl_game_table_container"
-        app:layout_heightPercent="40%"></FrameLayout>
+        android:layout_height="0dp"
+        app:layout_heightPercent="40%"
+        android:layout_below="@id/fl_game_table_container"/>
 
-</android.support.percent.PercentRelativeLayout>
+</ksmori.hu.ait.spades.view.SpadesGameRootLayout>

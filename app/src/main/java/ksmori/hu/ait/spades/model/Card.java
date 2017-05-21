@@ -1,11 +1,12 @@
-package ksmori.hu.ait.spades.game;
+package ksmori.hu.ait.spades.model;
 
 import android.content.res.Resources;
-import android.support.annotation.NonNull;
+import java.io.Serializable;
 
+import android.support.annotation.NonNull;
 import com.google.firebase.database.Exclude;
 
-public class Card implements Comparable {
+public class Card implements Comparable, Serializable {
 
     public enum Suit {
         DIAMOND(0), CLUB(1), HEART(2), SPADE(3);
@@ -43,13 +44,13 @@ public class Card implements Comparable {
     }
 
     public Card(int value, Suit suit) {
-        if (value == 1) {
-            value = ACE;
+        if (value > MAX_VALUE || value < MIN_VALUE) {
+            throw new IllegalArgumentException("Card value must be between "
+                    + MIN_VALUE + " and " + MAX_VALUE +", incl.");
         }
         this.suit = suit;
         this.value = value;
     }
-
 
     public int getValue() {
         return value;
@@ -84,7 +85,7 @@ public class Card implements Comparable {
     }
 
     @Exclude
-    private static int determineImageResource(Card card) {
+    private static String determineImageName(Card card) {
         String strTitle;
         switch (card.getValue()) {
             case ACE:
@@ -104,7 +105,8 @@ public class Card implements Comparable {
         }
         String strSuit = card.getSuitValue().name().toLowerCase();
         String res = "card_" + strTitle + "_of_" + strSuit + "s.png";
-        return Resources.getSystem().getIdentifier(res, "drawable", "ksmori.hu.ait.spades");
+//        return Resources.getSystem().getIdentifier(res, "drawable", "ksmori.hu.ait.spades");
+        return res;
     }
 
     @Exclude
