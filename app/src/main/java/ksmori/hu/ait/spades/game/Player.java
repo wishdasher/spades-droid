@@ -30,7 +30,7 @@ public class Player {
     @Exclude
     public static final String WEST_KEY = "west";
 
-    private String id;
+    private String name;
     private Bid bid;
     private List<Card> hand;
     private int tricks;
@@ -41,8 +41,8 @@ public class Player {
     public Player() {
     }
 
-    public Player(String id, Bid bid, List<Card> hand, int tricks, String leftKey, String partnerKey, String rightKey) {
-        this.id = id;
+    public Player(String name, Bid bid, List<Card> hand, int tricks, String leftKey, String partnerKey, String rightKey) {
+        this.name = name;
         this.bid = bid;
         this.hand = hand;
         this.tricks = tricks;
@@ -51,12 +51,12 @@ public class Player {
         this.rightKey = rightKey;
     }
 
-    public String getId() {
-        return id;
+    public String getName() {
+        return name;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setName(String id) {
+        this.name = name;
     }
 
     public String getBid() {

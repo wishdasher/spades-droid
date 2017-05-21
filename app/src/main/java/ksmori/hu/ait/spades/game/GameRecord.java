@@ -2,7 +2,7 @@ package ksmori.hu.ait.spades.game;
 
 import java.util.List;
 
-class GameRecord {
+public class GameRecord {
 
     private Team teamNS;
     private Team teamEW;

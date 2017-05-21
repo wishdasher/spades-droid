@@ -19,6 +19,7 @@ public class StartActivity extends AppCompatActivity {
 
     private static final String START_ACTIVITY_TAG = "StartActivityTag";
     public static final String GAMES_KEY = "games";
+    public static final String PLAYERS_KEY = "players";
     public static final String GAMES_LIST_KEY = "games_list";
     public static final int JOIN_GAME_REQUEST = 500;
 
@@ -50,10 +51,13 @@ public class StartActivity extends AppCompatActivity {
         FirebaseDatabase.getInstance().getReference().
                 child(GAMES_KEY).child(key).setValue(newGame);
         FirebaseDatabase.getInstance().getReference().child(GAMES_LIST_KEY).push().setValue(key);
+        FirebaseDatabase.getInstance().getReference().child(GAMES_KEY).child(key).child(PLAYERS_KEY).
+                push().setValue(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
         Log.d(START_ACTIVITY_TAG, "New game created with id: " + key);
 
         Intent intent = new Intent(this, WaitingRoomActivity.class);
         intent.putExtra(WaitingRoomActivity.GAME_ID_KEY, key);
+        intent.putExtra(WaitingRoomActivity.HOST_PLAYER_KEY, true);
         startActivity(intent);
     }
 
@@ -68,10 +72,14 @@ public class StartActivity extends AppCompatActivity {
         if (requestCode == JOIN_GAME_REQUEST) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
+                //TODO disallow if game is full
                 String gameID = data.getStringExtra(JoinGameActivity.JOIN_GAME_RETURN);
                 Log.d(START_ACTIVITY_TAG, "Returned from JoinGameActivity with game id: " + gameID);
+                FirebaseDatabase.getInstance().getReference().child(GAMES_KEY).child(gameID).child(PLAYERS_KEY).
+                        push().setValue(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
                 Intent intent = new Intent(this, WaitingRoomActivity.class);
                 intent.putExtra(WaitingRoomActivity.GAME_ID_KEY, gameID);
+                intent.putExtra(WaitingRoomActivity.HOST_PLAYER_KEY, false);
                 startActivity(intent);
 
             }
