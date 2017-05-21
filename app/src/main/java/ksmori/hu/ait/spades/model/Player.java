@@ -1,4 +1,4 @@
-package ksmori.hu.ait.spades.game;
+package ksmori.hu.ait.spades.model;
 
 import com.google.firebase.database.Exclude;
 
@@ -40,6 +40,7 @@ public class Player {
     private String rightKey;
 
     public Player() {
+
     }
 
     public Player(String name, Bid bid, List<Card> hand, int tricks, String leftKey, String partnerKey, String rightKey) {
@@ -133,4 +134,5 @@ public class Player {
     public void setRightKey(String rightKey) {
         this.rightKey = rightKey;
     }
+
 }
