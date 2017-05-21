@@ -1,70 +1,39 @@
 package ksmori.hu.ait.spades.game;
 
 
-import com.google.firebase.database.Exclude;
-
 public class Team {
 
-    private String playerAKey;
-    private String playerBKey;
+    private Player playerA;
+    private Player playerB;
 
     private int score;
     private int bags;
 
-    public Team() {
+    private String name;
+
+    public Team(Player a, Player b) {
+        playerA = a;
+        playerB = b;
+        name = playerA.getName() + "&" + playerB.getName();
+
+        score = 0;
+        bags = 0;
+        checkRep();
     }
 
-    public Team(String playerAKey, String playerBKey, int score, int bags) {
-        this.playerAKey = playerAKey;
-        this.playerBKey = playerBKey;
-        this.score = score;
-        this.bags = bags;
-    }
-
-    public String getPlayerAKey() {
-        return playerAKey;
-    }
-
-    public void setPlayerAKey(String playerAKey) {
-        this.playerAKey = playerAKey;
-    }
-
-    public String getPlayerBKey() {
-        return playerBKey;
-    }
-
-    public void setPlayerBKey(String playerBKey) {
-        this.playerBKey = playerBKey;
-    }
-
-    public int getScore() {
-        return score;
-    }
-
-    public void setScore(int score) {
-        this.score = score;
-    }
-
-    public int getBags() {
-        return bags;
-    }
-
-    public void setBags(int bags) {
-        this.bags = bags;
-    }
-
-    @Exclude
     private void checkRep() {
         assert bags >= 0 && bags < 10;
     }
 
-    @Exclude
+    public Player[] getPlayers() {
+        return new Player[]{playerA, playerB};
+    }
+
     public int calculateRoundScore() {
         //TODO: calculate based on bids and
         return 0;
     }
 
-    @Exclude
     public void updateScore(int points, int bags) {
         score += points;
         this.bags += bags;
@@ -75,7 +44,6 @@ public class Team {
         checkRep();
     }
 
-    @Exclude
     public int getTotalScore() {
         if (score > 0) {
             return score + bags;
@@ -84,9 +52,8 @@ public class Team {
         }
     }
 
-    @Exclude
     public String getName() {
-        return playerAKey + "&" + playerBKey;
+        return name;
     }
 
 }

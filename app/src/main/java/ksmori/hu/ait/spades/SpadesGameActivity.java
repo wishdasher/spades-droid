@@ -11,9 +11,6 @@ import ksmori.hu.ait.spades.view.PlayerCardsFragment;
 
 public class SpadesGameActivity extends AppCompatActivity {
 
-    private boolean isHost;
-    private String position;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
