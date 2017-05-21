@@ -1,12 +1,18 @@
 package ksmori.hu.ait.spades;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewPropertyAnimator;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,11 +32,11 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         View.OnTouchListener{
 
     private static final String DEBUG_TAG = "SpadesGameActivity";
-
+    private static final long ANIM_DURATION_MILLIS = 750;
     private SpadesPresenter mSpadesPresenter;
-    private View mGameView;
+    private Fragment mGameFragment;
     private CardPresenter mCardPresenter;
-    private SpadesGameRootLayout rootLayout;
+//    private SpadesGameRootLayout rootLayout;
     private List<Card> playerCards;
 
     private CardImageView activeCard;
@@ -55,12 +61,12 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         }
         setupPlayerCardsFragment(playerCards);
 
-
-
         activeCard = (CardImageView) findViewById(R.id.iv_active_card);
         activeCard.setOnTouchListener(this);
-        rootLayout = (SpadesGameRootLayout) findViewById(R.id.layout_root_game_activity);
+//        rootLayout = (SpadesGameRootLayout) findViewById(R.id.layout_root_game_activity);
         activeCard.bringToFront();
+
+        mSpadesPresenter = new SpadesPresenter();
 
     }
 
@@ -80,8 +86,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         ft.add(R.id.fl_game_table_container, gtf,GameTableFragment.TAG);
         ft.commit();
 
-
-        mGameView = gtf.getView();
+        mGameFragment = gtf;
     }
 
     private void setupPlayerCardsFragment(List<Card> playerCards) {
@@ -172,8 +177,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
                     } else if (lastAction == MotionEvent.ACTION_MOVE){
                         Log.d(DEBUG_TAG, "ActiveCard dragUp!");
                         if(inPlayArea(event.getRawX(),event.getRawY())){
-                            performPlayAnimation(v);
-                            mSpadesPresenter.playCard(((CardImageView) v).getCard());
+                            performPlayAnimation();
                         }
                     }
                     break;
@@ -190,12 +194,39 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     }
 
     private boolean inPlayArea(float rawX, float rawY) {
-        return false;
+        View gameView = mGameFragment.getView();
+        if(gameView!=null) {
+            int[] gameLoc = new int[2];
+            gameView.getLocationOnScreen(gameLoc);
+            int minX = gameLoc[0];
+            int maxX = minX + gameView.getWidth();
+            int minY = gameLoc[1];
+            int maxY = minY + gameView.getHeight();
+            Log.d(DEBUG_TAG, String.format("X validation: %d < %f < %d ?",minX, rawX, maxX));
+            Log.d(DEBUG_TAG, String.format("Y validation: %d < %f < %d ?",minY, rawY, maxY));
+
+            return (minX <= rawX && rawX <= maxX && minY <= rawY && rawY <= maxY);
+        } else {
+            return false;
+        }
     }
 
-    private void performPlayAnimation(View v) {
-
+    private void performPlayAnimation() {
+        View viewTarget = mGameFragment.getView().findViewById(R.id.iv_player_card_bottom);
+        int[] targetLoc = new int[2];
+        viewTarget.getLocationOnScreen(targetLoc);
+        float endX = (float) targetLoc[0] - activeCardOriginalLocation[0];
+        float endY = (float) targetLoc[1] - activeCardOriginalLocation[1];
+        ViewPropertyAnimatorCompat vpAnim = ViewCompat.animate(activeCard).translationX(endX).translationY(endY);
+        vpAnim.scaleXBy(viewTarget.getWidth() / (float) activeCard.getWidth());
+        vpAnim.scaleYBy(viewTarget.getHeight() / (float) activeCard.getHeight());
+        vpAnim.setDuration(ANIM_DURATION_MILLIS);
+        vpAnim.withEndAction(new Runnable() {
+            @Override
+            public void run() {
+                mSpadesPresenter.playCard(activeCard.getCard());
+            }
+        });
+        vpAnim.start();
     }
-
-
 }
