@@ -1,13 +1,12 @@
 package ksmori.hu.ait.spades;
 
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,6 +24,7 @@ import ksmori.hu.ait.spades.view.SpadesGameRootLayout;
 public class SpadesGameActivity extends AppCompatActivity implements SpadesGameScreen,
         View.OnTouchListener{
 
+    public static final String STATE_KEY = "state";
     private static final String DEBUG_TAG = "SpadesGameActivity";
     private SpadesPresenter mSpadesPresenter;
     private SpadesGameRootLayout rootLayout;
@@ -38,7 +38,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
     private boolean isHost;
     private String position;
-    public static final String STATE_KEY = "state";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
