@@ -1,5 +1,6 @@
 package ksmori.hu.ait.spades;
 
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,7 @@ import java.util.List;
 
 import ksmori.hu.ait.spades.model.Card;
 import ksmori.hu.ait.spades.model.Player;
+import ksmori.hu.ait.spades.presenter.CardPresenter;
 import ksmori.hu.ait.spades.presenter.SpadesPresenter;
 import ksmori.hu.ait.spades.util.SpadesDebug;
 import ksmori.hu.ait.spades.view.CardImageView;
@@ -27,6 +29,8 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
     private static final String DEBUG_TAG = "SpadesGameActivity";
     private SpadesPresenter mSpadesPresenter;
+    private View mGameView;
+    private CardPresenter mCardPresenter;
     private SpadesGameRootLayout rootLayout;
     private List<Card> playerCards;
 
@@ -69,10 +73,15 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     }
 
     public void setupGameTableFragment() {
+        GameTableFragment gtf = new GameTableFragment();
+
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        ft.add(R.id.fl_game_table_container, new GameTableFragment(),GameTableFragment.TAG);
+        ft.add(R.id.fl_game_table_container, gtf,GameTableFragment.TAG);
         ft.commit();
+
+
+        mGameView = gtf.getView();
     }
 
     private void setupPlayerCardsFragment(List<Card> playerCards) {
@@ -85,6 +94,8 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         FragmentTransaction ft = fm.beginTransaction();
         ft.add(R.id.fl_player_cards_container, pcf,PlayerCardsFragment.TAG);
         ft.commit();
+
+        mCardPresenter = pcf;
     }
 
 
@@ -157,8 +168,13 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
                 case MotionEvent.ACTION_UP:
                     if (lastAction == MotionEvent.ACTION_DOWN) {
                         Log.d(DEBUG_TAG, "ActiveCard clickUp!");
+                        mCardPresenter.cancelCardSelection();
                     } else if (lastAction == MotionEvent.ACTION_MOVE){
                         Log.d(DEBUG_TAG, "ActiveCard dragUp!");
+                        if(inPlayArea(event.getRawX(),event.getRawY())){
+                            performPlayAnimation(v);
+                            mSpadesPresenter.playCard(((CardImageView) v).getCard());
+                        }
                     }
                     break;
 
@@ -172,4 +188,14 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         }
         return false;
     }
+
+    private boolean inPlayArea(float rawX, float rawY) {
+        return false;
+    }
+
+    private void performPlayAnimation(View v) {
+
+    }
+
+
 }

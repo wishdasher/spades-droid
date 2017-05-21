@@ -8,12 +8,10 @@ import android.util.Log;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import ksmori.hu.ait.spades.model.Game;
-import ksmori.hu.ait.spades.game.Play;
 
 public class StartActivity extends AppCompatActivity {
 

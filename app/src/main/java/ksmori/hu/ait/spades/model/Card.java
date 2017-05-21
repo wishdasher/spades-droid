@@ -85,7 +85,7 @@ public class Card implements Comparable, Serializable {
     }
 
     @Exclude
-    private static String determineImageName(Card card) {
+    public static String determineImageName(Card card) {
         String strTitle;
         switch (card.getValue()) {
             case ACE:
