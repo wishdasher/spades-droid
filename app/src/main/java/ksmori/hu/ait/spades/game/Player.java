@@ -2,6 +2,7 @@ package ksmori.hu.ait.spades.game;
 
 import com.google.firebase.database.Exclude;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Player {
@@ -74,6 +75,22 @@ public class Player {
             bid = null;
         } else {
             bid = Bid.valueOf(bidString);
+        }
+    }
+
+    @Exclude
+    public List<Card> getPlayableHand(final Card.Suit currentSuit, final boolean spadesBroken) {
+        if (currentSuit == null) {
+            return hand;
+        }
+        else {
+            List<Card> playableCards = new ArrayList<>();
+            for (Card card : hand) {
+                if (card.getSuitValue() == currentSuit || ( spadesBroken && card.getSuitValue() == Card.Suit.SPADE)) {
+                    playableCards.add(card);
+                }
+            }
+            return playableCards;
         }
     }
 
