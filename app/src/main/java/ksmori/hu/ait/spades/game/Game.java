@@ -2,6 +2,8 @@ package ksmori.hu.ait.spades.game;
 
 import com.google.firebase.database.Exclude;
 
+import java.util.List;
+
 public class Game {
 
     public enum State {
@@ -14,10 +16,13 @@ public class Game {
     private Player east;
     private Player south;
     private Player west;
+    private Team teamNS;
+    private Team teamEW;
 
     // GAME WIDE
     private State state; //converted from enum
     private int roundNumber;
+    private GameRecord gameRecord;
 
     // ROUND WIDE
     private boolean spadesBroken;
@@ -25,16 +30,23 @@ public class Game {
     private String lastPlayer;
     private String nextPlayer;
     private Card.Suit currentSuit; //converted from enum
+    private List<Play> plays;
 
-    public Game(String hostPlayer, State state, int roundNumber, boolean spadesBroken, int trickNumber, String lastPlayer, String nextPlayer, Card.Suit currentSuit) {
+    public Game() {
+
+    }
+
+    public Game(String hostPlayer, State state, int roundNumber, GameRecord gameRecord, boolean spadesBroken, int trickNumber, String lastPlayer, String nextPlayer, Card.Suit currentSuit, List<Play> plays) {
         this.hostPlayer = hostPlayer;
         this.state = state;
         this.roundNumber = roundNumber;
+        this.gameRecord = gameRecord;
         this.spadesBroken = spadesBroken;
         this.trickNumber = trickNumber;
         this.lastPlayer = lastPlayer;
         this.nextPlayer = nextPlayer;
         this.currentSuit = currentSuit;
+        this.plays = plays;
     }
 
     public String getHostPlayer() {
@@ -115,10 +127,42 @@ public class Game {
     public void setCurrentSuit(String currentSuitString) {
         // get enum from string
         if (currentSuitString == null) {
-            state = null;
+            currentSuit = null;
         } else {
-            state = State.valueOf(currentSuitString);
+            currentSuit = Card.Suit.valueOf(currentSuitString);
         }
+    }
+
+    public Team getTeamNS() {
+        return teamNS;
+    }
+
+    public void setTeamNS(Team teamNS) {
+        this.teamNS = teamNS;
+    }
+
+    public Team getTeamEW() {
+        return teamEW;
+    }
+
+    public void setTeamEW(Team teamEW) {
+        this.teamEW = teamEW;
+    }
+
+    public GameRecord getGameRecord() {
+        return gameRecord;
+    }
+
+    public void setGameRecord(GameRecord gameRecord) {
+        this.gameRecord = gameRecord;
+    }
+
+    public List<Play> getPlays() {
+        return plays;
+    }
+
+    public void setPlays(List<Play> plays) {
+        this.plays = plays;
     }
 
     @Exclude

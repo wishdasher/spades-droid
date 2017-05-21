@@ -1,31 +1,54 @@
 package ksmori.hu.ait.spades.game;
 
-
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A way to display previous rounds.
- * Should have no references to game objects themselves.
- */
+class GameRecord {
 
-public class GameRecord {
+    private Team teamNS;
+    private Team teamEW;
 
-    private Team teamA;
-    private Team teamB;
+    private List<Integer> scoresNS;
+    private List<Integer> scoresEW;
 
-    private List<Integer> scoresA;
-    private List<Integer> scoresB;
-
-    private GameRecord(Team a, Team b) {
-        teamA = a;
-        teamB = b;
-        scoresA = new ArrayList<>();
-        scoresB = new ArrayList<>();
+    public GameRecord() {
     }
 
-    public void update() {
-        scoresA.add(teamA.getTotalScore());
-        scoresB.add(teamB.getTotalScore());
+    public GameRecord(Team teamNS, Team teamEW, List<Integer> scoresNS, List<Integer> scoresEW) {
+        this.teamNS = teamNS;
+        this.teamEW = teamEW;
+        this.scoresNS = scoresNS;
+        this.scoresEW = scoresEW;
+    }
+
+    public Team getTeamNS() {
+        return teamNS;
+    }
+
+    public void setTeamNS(Team teamNS) {
+        this.teamNS = teamNS;
+    }
+
+    public Team getTeamEW() {
+        return teamEW;
+    }
+
+    public void setTeamEW(Team teamEW) {
+        this.teamEW = teamEW;
+    }
+
+    public List<Integer> getScoresNS() {
+        return scoresNS;
+    }
+
+    public void setScoresNS(List<Integer> scoresNS) {
+        this.scoresNS = scoresNS;
+    }
+
+    public List<Integer> getScoresEW() {
+        return scoresEW;
+    }
+
+    public void setScoresEW(List<Integer> scoresEW) {
+        this.scoresEW = scoresEW;
     }
 }

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -28,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.et_login_password)
     EditText etPassword;
 
+    private static final String LOGIN_ACTIVITY_TAG = "LoginActivityTag";
     private FirebaseAuth firebaseAuth;
     private ProgressDialog progressDialog;
 
@@ -67,10 +69,12 @@ public class LoginActivity extends AppCompatActivity {
 
                     Toast.makeText(LoginActivity.this, "Registered",
                             Toast.LENGTH_SHORT).show();
+                    Log.d(LOGIN_ACTIVITY_TAG, "User created with username: " + etEmail.getText().toString());
                 } else {
-                    Toast.makeText(LoginActivity.this, "Registration failed: "+
+                    Toast.makeText(LoginActivity.this, "Registration failed: " +
                                     task.getException().getLocalizedMessage(),
                             Toast.LENGTH_SHORT).show();
+                    Log.d(LOGIN_ACTIVITY_TAG, "Registration failed: " + task.getException().getLocalizedMessage());
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -80,6 +84,7 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(LoginActivity.this,
                         "error: " + e.getMessage(),
                         Toast.LENGTH_SHORT).show();
+                Log.d(LOGIN_ACTIVITY_TAG, "Failure in registration");
             }
         });
     }
@@ -102,10 +107,12 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (task.isSuccessful()) {
                     Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+                    Log.d(LOGIN_ACTIVITY_TAG, "Login successful");
                     startActivity(new Intent(LoginActivity.this, StartActivity.class));
                 } else {
                     Toast.makeText(LoginActivity.this, "Login failed: " + task.getException().getLocalizedMessage(),
                             Toast.LENGTH_SHORT).show();
+                    Log.d(LOGIN_ACTIVITY_TAG, "Login failed: " + task.getException().getLocalizedMessage());
                 }
             }
         });

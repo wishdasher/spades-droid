@@ -4,6 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ksmori.hu.ait.spades.WaitingRoomActivity">
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="ksmori.hu.ait.spades.JoinGameActivity"
+    tools:showIn="@layout/activity_join_game">
+
 
 </LinearLayout>

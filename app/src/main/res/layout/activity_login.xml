@@ -17,13 +17,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textEmailAddress"
-        android:hint="email" />
+        android:hint="email"
+        android:text="ksmori@mit.edu" />
+
     <EditText
         android:id="@+id/et_login_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPassword"
-        android:hint="password" />
+        android:hint="password"
+        android:text="testtesttest" />
 
     <Button
         android:id="@+id/btn_login"
