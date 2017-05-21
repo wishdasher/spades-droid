@@ -12,18 +12,19 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class WaitingRoomActivity extends AppCompatActivity {
 
-    public static final String GAME_ID_KEY = "GAME_ID_KEY";
-    public static final String HOST_PLAYER_KEY = "HOST_PLAYER_KEY";
+    public static final String GAME_ID_INTENT_KEY = "GAME_ID_INTENT_KEY";
+    public static final String HOST_PLAYER_INTENT_KEY = "HOST_PLAYER_INTENT_KEY";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waiting_room);
 
-        String gameID = getIntent().getStringExtra(GAME_ID_KEY);
-        boolean isHostPlayer = getIntent().getBooleanExtra(HOST_PLAYER_KEY, false);
+        String gameID = getIntent().getStringExtra(GAME_ID_INTENT_KEY);
+        boolean isHostPlayer = getIntent().getBooleanExtra(HOST_PLAYER_INTENT_KEY, false);
         Toast.makeText(this, gameID, Toast.LENGTH_SHORT).show();
 
         DatabaseReference gamesRef = FirebaseDatabase.getInstance().getReference(StartActivity.GAMES_KEY).
+                child(gameID).
                 child(StartActivity.PLAYERS_KEY);
         gamesRef.addChildEventListener(new ChildEventListener() {
             @Override
@@ -51,6 +52,10 @@ public class WaitingRoomActivity extends AppCompatActivity {
 
             }
         });
+
+        FirebaseDatabase statesRef = FirebaseDatabase.getInstance().getReference(StartActivity.GAMES_KEY).
+                child(gameID).
+                child(StartActivity.PLAYERS_KEY);
     }
 
     private void updatePlayerList() {

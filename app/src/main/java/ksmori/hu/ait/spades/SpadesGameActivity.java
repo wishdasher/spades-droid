@@ -13,6 +13,7 @@ public class SpadesGameActivity extends AppCompatActivity {
 
     private boolean isHost;
     private String position;
+    public static final String STATE_KEY = "state";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -56,8 +56,8 @@ public class StartActivity extends AppCompatActivity {
         Log.d(START_ACTIVITY_TAG, "New game created with id: " + key);
 
         Intent intent = new Intent(this, WaitingRoomActivity.class);
-        intent.putExtra(WaitingRoomActivity.GAME_ID_KEY, key);
-        intent.putExtra(WaitingRoomActivity.HOST_PLAYER_KEY, true);
+        intent.putExtra(WaitingRoomActivity.GAME_ID_INTENT_KEY, key);
+        intent.putExtra(WaitingRoomActivity.HOST_PLAYER_INTENT_KEY, true);
         startActivity(intent);
     }
 
@@ -78,8 +78,8 @@ public class StartActivity extends AppCompatActivity {
                 FirebaseDatabase.getInstance().getReference().child(GAMES_KEY).child(gameID).child(PLAYERS_KEY).
                         push().setValue(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
                 Intent intent = new Intent(this, WaitingRoomActivity.class);
-                intent.putExtra(WaitingRoomActivity.GAME_ID_KEY, gameID);
-                intent.putExtra(WaitingRoomActivity.HOST_PLAYER_KEY, false);
+                intent.putExtra(WaitingRoomActivity.GAME_ID_INTENT_KEY, gameID);
+                intent.putExtra(WaitingRoomActivity.HOST_PLAYER_INTENT_KEY, false);
                 startActivity(intent);
 
             }
