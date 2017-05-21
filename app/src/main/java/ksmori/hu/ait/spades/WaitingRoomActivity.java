@@ -1,6 +1,7 @@
 package ksmori.hu.ait.spades;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -8,7 +9,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -16,7 +16,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ksmori.hu.ait.spades.model.Card;
 import ksmori.hu.ait.spades.model.Deck;
@@ -38,7 +40,8 @@ public class WaitingRoomActivity extends AppCompatActivity {
     private String playerKeyValue;
 
     private DatabaseReference database;
-
+    private DatabaseReference gamePlayersRef;
+    private Map<DatabaseReference, ValueEventListener> listenerMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,16 +49,18 @@ public class WaitingRoomActivity extends AppCompatActivity {
         setContentView(R.layout.activity_waiting_room);
 
         database = FirebaseDatabase.getInstance().getReference();
+        listenerMap = new HashMap<>();
 
         gameID = getIntent().getStringExtra(GAME_ID_INTENT_KEY);
         isHostPlayer = getIntent().getBooleanExtra(HOST_PLAYER_INTENT_KEY, false);
         playerKeyValue = getIntent().getStringExtra(PLAYER_MEMBER_INTENT_KEY);
         Toast.makeText(this, gameID, Toast.LENGTH_SHORT).show();
 
-        DatabaseReference gamePlayersRef = database.child(StartActivity.GAMES_KEY)
+        gamePlayersRef = database.child(StartActivity.GAMES_KEY)
                 .child(gameID)
                 .child(StartActivity.PLAYERS_KEY);
-        gamePlayersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        ValueEventListener gamePlayersListener = new ValueEventListener() {
+
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 updatePlayerList(dataSnapshot);
@@ -65,66 +70,34 @@ public class WaitingRoomActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
-        gamePlayersRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                updatePlayerList(dataSnapshot);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                updatePlayerList(dataSnapshot);
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                updatePlayerList(dataSnapshot);
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                updatePlayerList(dataSnapshot);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        };
+        gamePlayersRef.addValueEventListener(gamePlayersListener);
+        listenerMap.put(gamePlayersRef, gamePlayersListener);
 
         DatabaseReference statesRef = database.child(StartActivity.GAMES_KEY)
                 .child(gameID)
                 .child(Game.STATE_KEY);
-        statesRef.addChildEventListener(new ChildEventListener() {
+        ValueEventListener statesListener = new ValueEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            public void onDataChange(DataSnapshot dataSnapshot) {
                 switch (Game.State.valueOf((String) dataSnapshot.getValue())) {
                     case READY:
+                        removeListeners();
                         //TODO START GAME
+                        Intent intent = new Intent(WaitingRoomActivity.this, SpadesGameActivity.class);
+                        intent.putExtra(GAME_ID_INTENT_KEY, gameID);
+                        intent.putExtra(HOST_PLAYER_INTENT_KEY, isHostPlayer); //TODO needed?
+                        startActivity(intent);
                 }
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        };
+        statesRef.addValueEventListener(statesListener);
+        listenerMap.put(statesRef, statesListener);
     }
 
     @Override
@@ -132,15 +105,27 @@ public class WaitingRoomActivity extends AppCompatActivity {
         super.onBackPressed();
         database.child(StartActivity.GAMES_KEY).child(gameID)
                 .child(StartActivity.PLAYERS_KEY).child(playerKeyValue).removeValue();
+        removeListeners();
+    }
+
+    private void removeListeners() {
+        for (DatabaseReference dr : listenerMap.keySet()) {
+            dr.removeEventListener(listenerMap.get(dr));
+        }
     }
 
     private void updatePlayerList(final DataSnapshot dataSnapshot) {
         String players = "";
         int numPlayers = 0;
+
         for (DataSnapshot child : dataSnapshot.getChildren()) {
+            Toast.makeText(this, "DEBUG " + child.getValue(), Toast.LENGTH_SHORT).show();
             players += child.getValue() + "\n";
             numPlayers += 1;
         }
+
+        Toast.makeText(this, "DEBUG total " + numPlayers, Toast.LENGTH_SHORT).show();
+
         TextView tvPlayers = (TextView) findViewById(R.id.tv_all_players);
         tvPlayers.setText(players);
 
@@ -255,6 +240,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
         Toast.makeText(this, "Setup done!", Toast.LENGTH_SHORT).show();
         database.child(StartActivity.GAMES_KEY).child(gameID)
                 .child(Game.STATE_KEY).setValue(Game.State.READY);
+        //TODO store mapping of players to position
 
     }
 }
