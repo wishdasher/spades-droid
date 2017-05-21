@@ -78,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onFailure(@NonNull Exception e) {
                 hideProgressDialog();
                 Toast.makeText(LoginActivity.this,
-                        "error: "+e.getMessage(),
+                        "error: " + e.getMessage(),
                         Toast.LENGTH_SHORT).show();
             }
         });
