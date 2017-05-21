@@ -1,6 +1,8 @@
 package ksmori.hu.ait.spades.view;
 
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -18,7 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ksmori.hu.ait.spades.R;
+import ksmori.hu.ait.spades.SpadesGameScreen;
 import ksmori.hu.ait.spades.model.Card;
+import ksmori.hu.ait.spades.util.SpadesDebug;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -31,8 +35,10 @@ public class PlayerCardsFragment extends FragmentTagged implements View.OnTouchL
     private static final int ROW_LENGTH = 7;
     private static final String[] rows = {"top", "bottom"};
     private static final String DEBUG_TAG = TAG;
+
     private List<Card> playerCards;
     private View rootView;
+    private SpadesGameScreen mSpadesGameScreen;
 
     @Nullable
     @Override
@@ -47,6 +53,12 @@ public class PlayerCardsFragment extends FragmentTagged implements View.OnTouchL
             playerCards = new ArrayList<>(0);
         }
         return rootView;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mSpadesGameScreen = (SpadesGameScreen) context;
     }
 
     @Override
@@ -110,8 +122,10 @@ public class PlayerCardsFragment extends FragmentTagged implements View.OnTouchL
             String ivName = "iv_row_"+ rows[i/ROW_LENGTH] +"_card"+(i%ROW_LENGTH+1);
             ImageView iv = (ImageView) getView().findViewById(getResources().getIdentifier(
                     ivName,"id", "ksmori.hu.ait.spades"));
-            iv.setImageResource(getResources().getIdentifier(
-                    playerCards.get(i).getImageResourceName(),"drawable","ksmori.hu.ait.spades"));
+            int resID = getResources().getIdentifier(
+                    playerCards.get(i).getImageResourceName(),"drawable","ksmori.hu.ait.spades");
+            iv.setImageResource(resID);
+            iv.setTag(resID);
         }
         for (int i = playerCards.size(); i < rows.length * ROW_LENGTH; i++) {
             String ivName = "iv_row_"+ rows[i/ROW_LENGTH] +"_card"+(i%ROW_LENGTH+1);
@@ -124,11 +138,24 @@ public class PlayerCardsFragment extends FragmentTagged implements View.OnTouchL
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        // give the activity a chance to handle the touch
+        // give the parent activity a chance to handle the touch first
         if(((View.OnTouchListener) getActivity()).onTouch(v, event)){
             return true;
         }
-        Log.d(DEBUG_TAG,"onTouch("+v.toString()+", ??)");
+        String actionStr = SpadesDebug.getActionString(event);
+        Log.d(DEBUG_TAG,String.format("onTouch(%s,%s)",v.toString(),actionStr));
+
+        if(v instanceof CardImageView){
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    Log.d(DEBUG_TAG,"setting Screen Active Card");
+                    mSpadesGameScreen.setActiveCard((CardImageView) v, event);
+                    return true;
+                default:
+                    break;
+            }
+        }
         return false;
     }
+
 }

@@ -6,6 +6,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import ksmori.hu.ait.spades.util.SpadesDebug;
+
 public class CardImageView extends AppCompatImageView{
 
     private static final String DEBUG_TAG = "CardImageView";
@@ -16,10 +18,8 @@ public class CardImageView extends AppCompatImageView{
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if(event.getActionMasked() == MotionEvent.ACTION_DOWN){
-            Log.d(DEBUG_TAG,"onTouchEvent("+this.toString()+", DOWN)");
-        }
-        // Don't let touch events trigger for views behind this one.
-        return true;
+        String actionStr = SpadesDebug.getActionString(event);
+        Log.d(DEBUG_TAG,String.format("onTouchEvent(%s)",actionStr));
+        return true; // Don't let touch events trigger for views behind this one.
     }
 }
