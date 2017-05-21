@@ -21,12 +21,12 @@ public class StartActivity extends AppCompatActivity {
 
     @OnClick(R.id.btn_host)
     public void hostGame() {
-        String key = FirebaseDatabase.getInstance().
-                getReference().child(GAMES_KEY).push().getKey();
+        String key = FirebaseDatabase.getInstance().getReference().
+                child(GAMES_KEY).push().getKey();
 
         Game newGame = new Game(
                 FirebaseAuth.getInstance().getCurrentUser().getUid(),
-                "STATE",
+                Game.State.WAITING,
                 0,
                 false,
                 0,

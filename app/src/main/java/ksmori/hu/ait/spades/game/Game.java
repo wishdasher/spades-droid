@@ -10,6 +10,10 @@ public class Game {
 
     // UNCHANGING
     private String hostPlayer;
+    private Player north;
+    private Player east;
+    private Player south;
+    private Player west;
 
     // GAME WIDE
     private State state; //converted from enum
@@ -99,12 +103,22 @@ public class Game {
         this.nextPlayer = nextPlayer;
     }
 
-    public Card.Suit getCurrentSuit() {
-        return currentSuit;
+    public String getCurrentSuit() {
+        // convert enum to string
+        if (currentSuit == null) {
+            return null;
+        } else {
+            return currentSuit.name();
+        }
     }
 
-    public void setCurrentSuit(Card.Suit currentSuit) {
-        this.currentSuit = currentSuit;
+    public void setCurrentSuit(String currentSuitString) {
+        // get enum from string
+        if (currentSuitString == null) {
+            state = null;
+        } else {
+            state = State.valueOf(currentSuitString);
+        }
     }
 
     @Exclude
@@ -112,6 +126,10 @@ public class Game {
         return state;
     }
 
+    @Exclude
+    public Card.Suit getCurrentSuitValue() {
+        return currentSuit;
+    }
 
 }
 

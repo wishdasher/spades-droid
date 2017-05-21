@@ -17,9 +17,7 @@ public class GameModel {
     private boolean spadesBroken;
 
     private List<Player> players;
-
     private Player startingPlayer;
-
     private Deck deck;
 
     private static GameModel instance = null;

@@ -65,10 +65,10 @@ public class LoginActivity extends AppCompatActivity {
                                                     firebaseUser.getEmail())).build()
                     );
 
-                    Toast.makeText(LoginActivity.this, "REG OK",
+                    Toast.makeText(LoginActivity.this, "Registered",
                             Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(LoginActivity.this, "Failed: "+
+                    Toast.makeText(LoginActivity.this, "Registration failed: "+
                                     task.getException().getLocalizedMessage(),
                             Toast.LENGTH_SHORT).show();
                 }
@@ -101,10 +101,10 @@ public class LoginActivity extends AppCompatActivity {
                 hideProgressDialog();
 
                 if (task.isSuccessful()) {
-                    Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(LoginActivity.this, StartActivity.class));
                 } else {
-                    Toast.makeText(LoginActivity.this, "Failed: " + task.getException().getLocalizedMessage(),
+                    Toast.makeText(LoginActivity.this, "Login failed: " + task.getException().getLocalizedMessage(),
                             Toast.LENGTH_SHORT).show();
                 }
             }
