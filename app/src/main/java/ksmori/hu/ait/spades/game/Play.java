@@ -2,19 +2,30 @@ package ksmori.hu.ait.spades.game;
 
 public class Play {
 
-    private Player player;
+    private String player;
     private Card card;
 
-    public Play(Player player, Card card) {
+    public Play() {
+    }
+
+    public Play(String player, Card card) {
         this.player = player;
         this.card = card;
     }
 
-    public Player getPlayer() {
+    public String getPlayer() {
         return player;
+    }
+
+    public void setPlayer(String player) {
+        this.player = player;
     }
 
     public Card getCard() {
         return card;
+    }
+
+    public void setCard(Card card) {
+        this.card = card;
     }
 }

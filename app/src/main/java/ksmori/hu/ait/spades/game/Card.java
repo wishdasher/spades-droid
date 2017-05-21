@@ -3,6 +3,8 @@ package ksmori.hu.ait.spades.game;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
 
+import com.google.firebase.database.Exclude;
+
 public class Card implements Comparable {
 
     public enum Suit {
@@ -21,24 +23,24 @@ public class Card implements Comparable {
 
     private Suit suit;
     private int value; //2 through 14 because Ace is the highest value
-    private int imageResource;
 
+    @Exclude
     public static final int ACE = 14;
+    @Exclude
     public static final int JACK = 11;
+    @Exclude
     public static final int QUEEN = 12;
+    @Exclude
     public static final int KING = 13;
 
+    @Exclude
     public static final int MIN_VALUE = 2;
+    @Exclude
     public static final int MAX_VALUE = 14;
 
-    public Suit getSuit() {
-        return suit;
-    }
 
-    public int getValue() {
-        return value;
+    public Card() {
     }
-
 
     public Card(int value, Suit suit) {
         if (value == 1) {
@@ -46,13 +48,45 @@ public class Card implements Comparable {
         }
         this.suit = suit;
         this.value = value;
-        String res = determineImageName();
-        Resources.getSystem().getIdentifier(res, "drawable", "ksmori.hu.ait.spades");
     }
 
-    private String determineImageName() {
+
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
+    }
+
+    public String getSuit() {
+        // convert enum to string
+        if (suit == null) {
+            return null;
+        } else {
+            return suit.name();
+        }
+    }
+
+    public void setSuit(String suitString) {
+        // get enum from string
+        if (suitString == null) {
+            suit = null;
+        } else {
+            suit = Suit.valueOf(suitString);
+        }
+    }
+
+
+    @Exclude
+    public Suit getSuitValue() {
+        return suit;
+    }
+
+    @Exclude
+    private static int determineImageResource(Card card) {
         String strTitle;
-        switch (value) {
+        switch (card.getValue()) {
             case ACE:
                 strTitle = "ace";
                 break;
@@ -66,12 +100,14 @@ public class Card implements Comparable {
                 strTitle = "king";
                 break;
             default:
-                strTitle = "" + value;
+                strTitle = "" + card.getValue();
         }
-        String strSuit = suit.name().toLowerCase();
-        return "card_" + strTitle + "_of_" + strSuit + "s.png";
+        String strSuit = card.getSuitValue().name().toLowerCase();
+        String res = "card_" + strTitle + "_of_" + strSuit + "s.png";
+        return Resources.getSystem().getIdentifier(res, "drawable", "ksmori.hu.ait.spades");
     }
 
+    @Exclude
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Card)) {
@@ -87,13 +123,14 @@ public class Card implements Comparable {
      * @param o
      * @return
      */
+    @Exclude
     @Override
     public int compareTo(@NonNull Object o) {
         Card that = (Card) o; // may throw ClassCastException
-        if (this.getSuit() == that.getSuit()) {
+        if (this.getSuitValue() == that.getSuitValue()) {
             return this.getValue() - that.getValue();
         }
-        return this.getSuit().getRank() - that.getSuit().getRank();
+        return this.getSuitValue().getRank() - that.getSuitValue().getRank();
     }
 
 }
