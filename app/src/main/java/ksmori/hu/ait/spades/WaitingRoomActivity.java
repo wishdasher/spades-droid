@@ -16,7 +16,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,10 +23,7 @@ import java.util.Map;
 import ksmori.hu.ait.spades.model.Card;
 import ksmori.hu.ait.spades.model.Deck;
 import ksmori.hu.ait.spades.model.Game;
-import ksmori.hu.ait.spades.model.GameRecord;
-import ksmori.hu.ait.spades.model.Play;
 import ksmori.hu.ait.spades.model.Player;
-import ksmori.hu.ait.spades.model.Team;
 
 import static ksmori.hu.ait.spades.model.Game.State.SETUP;
 
@@ -161,11 +157,11 @@ public class WaitingRoomActivity extends AppCompatActivity {
             playersList.add(child.getValue(String.class));
         }
 
-        playersList = Arrays.asList("sophie", "david", "scrub", "sun");
+        //playersList = Arrays.asList("sophie", "david", "scrub", "sun");
         Deck deck = new Deck();
         List<ArrayList<Card>> hands = deck.deal(Game.NUM_PLAYERS);
-        Map<String, String> mapNameToPosition = new HashMap<>();
-
+//        Map<String, String> mapNameToPosition = new HashMap<>();
+//
         Player north = new Player(
                 playersList.get(0),
                 null,
@@ -175,7 +171,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
                 playersList.get(2),
                 playersList.get(3)
         );
-        mapNameToPosition.put(playersList.get(0), Player.NORTH_KEY);
+//        mapNameToPosition.put(playersList.get(0), Player.NORTH_KEY);
         Player east = new Player(
                 playersList.get(1),
                 null,
@@ -185,7 +181,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
                 playersList.get(3),
                 playersList.get(0)
         );
-        mapNameToPosition.put(playersList.get(1), Player.EAST_KEY);
+//        mapNameToPosition.put(playersList.get(1), Player.EAST_KEY);
         Player south = new Player(
                 playersList.get(2),
                 null,
@@ -195,7 +191,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
                 playersList.get(0),
                 playersList.get(1)
         );
-        mapNameToPosition.put(playersList.get(2), Player.SOUTH_KEY);
+//        mapNameToPosition.put(playersList.get(2), Player.SOUTH_KEY);
         Player west = new Player(
                 playersList.get(3),
                 null,
@@ -205,44 +201,49 @@ public class WaitingRoomActivity extends AppCompatActivity {
                 playersList.get(1),
                 playersList.get(2)
         );
-        mapNameToPosition.put(playersList.get(3), Player.WEST_KEY);
+//        mapNameToPosition.put(playersList.get(3), Player.WEST_KEY);
+//
+//        Team teamNS = new Team(north.getName(), south.getName(), 0, 0);
+//        Team teamEW = new Team(east.getName(), west.getName(), 0, 0);
+//
+//        Game.State state = SETUP;
+//
+//        int roundNumber = 1;
+//        GameRecord gr = new GameRecord(teamNS.getName(), teamEW.getName(), new ArrayList<Integer>(), new ArrayList<Integer>());
+//
+//        boolean spadesBroken = false;
+//        int trickNumber = 1;
+//        String lastPlayer = hostPlayer;
+//        String nextPlayer = hostPlayer;
+//        Card.Suit currentSuit = null;
+//        List<Play> plays = new ArrayList<>();
+//
+//        Game newGame = new Game(
+//                hostPlayer,
+//                north,
+//                east,
+//                south,
+//                west,
+//                teamNS,
+//                teamEW,
+//                state,
+//                roundNumber,
+//                gr,
+//                spadesBroken,
+//                trickNumber,
+//                lastPlayer,
+//                nextPlayer,
+//                currentSuit,
+//                plays
+//        );
+//        database.child(StartActivity.GAMES_KEY).child(gameID).setValue(newGame);
+//        database.child(StartActivity.GAMES_KEY).child(gameID)
+//                .child(Game.MAP_PLAY2POS_KEY).setValue(mapNameToPosition);
 
-        Team teamNS = new Team(north.getName(), south.getName(), 0, 0);
-        Team teamEW = new Team(east.getName(), west.getName(), 0, 0);
-
-        Game.State state = SETUP;
-
-        int roundNumber = 1;
-        GameRecord gr = new GameRecord(teamNS.getName(), teamEW.getName(), new ArrayList<Integer>(), new ArrayList<Integer>());
-
-        boolean spadesBroken = false;
-        int trickNumber = 1;
-        String lastPlayer = hostPlayer;
-        String nextPlayer = hostPlayer;
-        Card.Suit currentSuit = null;
-        List<Play> plays = new ArrayList<>();
-
-        Game newGame = new Game(
-                hostPlayer,
-                north,
-                east,
-                south,
-                west,
-                teamNS,
-                teamEW,
-                state,
-                roundNumber,
-                gr,
-                spadesBroken,
-                trickNumber,
-                lastPlayer,
-                nextPlayer,
-                currentSuit,
-                plays
-        );
-        database.child(StartActivity.GAMES_KEY).child(gameID).setValue(newGame);
-        database.child(StartActivity.GAMES_KEY).child(gameID)
-                .child(Game.MAP_PLAY2POS_KEY).setValue(mapNameToPosition);
+        database.child(StartActivity.GAMES_KEY).child(gameID).child(playersList.get(0)).setValue(north);
+        database.child(StartActivity.GAMES_KEY).child(gameID).child(playersList.get(1)).setValue(east);
+        database.child(StartActivity.GAMES_KEY).child(gameID).child(playersList.get(2)).setValue(south);
+        database.child(StartActivity.GAMES_KEY).child(gameID).child(playersList.get(3)).setValue(west);
 
 
         Toast.makeText(this, "Setup done!", Toast.LENGTH_SHORT).show();

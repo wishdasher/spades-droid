@@ -64,6 +64,12 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     private boolean spadesBroken;
     private Map<String, String> mapPlayerToPos;
 
+    private Player north;
+    private Player east;
+    private Player south;
+    private Player west;
+    private Player mePlayer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +81,41 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         isHostPlayer = getIntent().getBooleanExtra(WaitingRoomActivity.HOST_PLAYER_INTENT_KEY, false);
         spadesBroken = false;
         mapPlayerToPos = new HashMap<>();
+
+        final List<Player> players = new ArrayList<>();
+        DatabaseReference playersRef = databaseGame.child(StartActivity.PLAYERS_KEY);
+        playersRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    players.add(child.getValue(Player.class));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        north = players.get(0);
+        east = players.get(1);
+        south = players.get(2);
+        west = players.get(3);
+
+        if (myName.equals(north.getName())) {
+            myPosition = Player.NORTH_KEY;
+            mePlayer = north;
+        } else if (myName.equals(east.getName())) {
+            myPosition = Player.EAST_KEY;
+            mePlayer = east;
+        } else if (myName.equals(south.getName())) {
+            myPosition = Player.SOUTH_KEY;
+            mePlayer = south;
+        } else if (myName.equals(west.getName())) {
+            myPosition = Player.WEST_KEY;
+            mePlayer = west;
+        }
 
 //        DatabaseReference mapRef = databaseGame.child(Game.MAP_PLAY2POS_KEY);
 //        mapRef.keepSynced(true);
@@ -109,10 +150,9 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
         setupGameTableFragment();
 
-        //TODO TEST CODE EVENTUALLY DELETE
         Deck deck = new Deck();
         List<ArrayList<Card>> hands = deck.deal(Game.NUM_PLAYERS);
-        setupPlayerCardsFragment(hands.get(0));
+        setupPlayerCardsFragment(mePlayer.getHand());
 
         activeCard = (CardImageView) findViewById(R.id.iv_active_card);
         activeCard.setOnTouchListener(this);
