@@ -92,15 +92,15 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     private List<Card> myHand = new ArrayList<>();
     private List<Play> plays = new ArrayList<>();
 
+    private Card northCard;
+    private Card eastCard;
+    private Card southCard;
+    private Card westCard;
+
     //Utils
     private DatabaseReference databaseGame;
     private Map<DatabaseReference, ValueEventListener> listenerMap = new HashMap<>();
 
-    private Player north;
-    private Player east;
-    private Player south;
-    private Player west;
-    private Player mePlayer;
     private Card myCardToPlay;
 
     @Override
@@ -184,6 +184,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
     private void setUpListeners() {
         setUpTrickValueListeners();
+        setUpPlayedCardListeners();
         setUpGameVariableListeners();
         setUpPlayListener();
     }
@@ -195,10 +196,8 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mapPositionToTricks.put(Game.NORTH_KEY, dataSnapshot.getValue(Integer.class));
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
         DatabaseReference eastTricksRef = databaseGame.child(Player.EAST_KEY).child(Player.TRICKS_KEY);
@@ -207,10 +206,8 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mapPositionToTricks.put(Game.EAST_KEY, dataSnapshot.getValue(Integer.class));
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
         DatabaseReference southTricksRef = databaseGame.child(Player.SOUTH_KEY).child(Player.TRICKS_KEY);
@@ -219,10 +216,8 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mapPositionToTricks.put(Game.SOUTH_KEY, dataSnapshot.getValue(Integer.class));
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
         DatabaseReference westTricksRef = databaseGame.child(Player.WEST_KEY).child(Player.TRICKS_KEY);
@@ -231,10 +226,51 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mapPositionToTricks.put(Game.WEST_KEY, dataSnapshot.getValue(Integer.class));
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
 
+    private void setUpPlayedCardListeners() {
+        DatabaseReference northCardRef = databaseGame.child(Player.NORTH_KEY).child(Player.CARD_KEY);
+        northCardRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                northCard = dataSnapshot.getValue(Card.class);
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+        DatabaseReference eastCardRef = databaseGame.child(Player.EAST_KEY).child(Player.CARD_KEY);
+        eastCardRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                eastCard = dataSnapshot.getValue(Card.class);
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+        DatabaseReference southCardRef = databaseGame.child(Player.SOUTH_KEY).child(Player.CARD_KEY);
+        southCardRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                southCard = dataSnapshot.getValue(Card.class);
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+        DatabaseReference westCardRef = databaseGame.child(Player.WEST_KEY).child(Player.CARD_KEY);
+        westCardRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                westCard = dataSnapshot.getValue(Card.class);
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
             }
         });
     }
@@ -349,6 +385,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         } else {
             Play myPlay = playCard();
             plays.add(myPlay);
+            databaseGame.child(myPosition).child(Player.CARD_KEY).setValue(myPlay.getCard());
 
             if (plays.size() == Game.NUM_PLAYERS) {
                 // TRICK IS OVER
@@ -363,6 +400,10 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
                 databaseGame.child(winningPos)
                         .child(Player.TRICKS_KEY).setValue(mapPositionToTricks.get(winningPos) + 1);
                 databaseGame.child(Game.PLAYS_KEY).setValue(new ArrayList<>());
+                databaseGame.child(Game.NORTH_KEY).child(Player.CARD_KEY).setValue(null);
+                databaseGame.child(Game.EAST_KEY).child(Player.CARD_KEY).setValue(null);
+                databaseGame.child(Game.SOUTH_KEY).child(Player.CARD_KEY).setValue(null);
+                databaseGame.child(Game.WEST_KEY).child(Player.CARD_KEY).setValue(null);
                 databaseGame.child(GameVariable.KEY).child(GameVariable.CURRENT_SUIT_KEY).setValue(null);
                 databaseGame.child(GameVariable.KEY).child(GameVariable.TRICK_NUMBER_KEY).setValue(trickNumber + 1);
             } else {
