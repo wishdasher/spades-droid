@@ -244,7 +244,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
         database.child(StartActivity.GAMES_KEY).child(gameID).child(Game.EAST_KEY).setValue(east);
         database.child(StartActivity.GAMES_KEY).child(gameID).child(Game.SOUTH_KEY).setValue(south);
         database.child(StartActivity.GAMES_KEY).child(gameID).child(Game.WEST_KEY).setValue(west);
-        database.child(StartActivity.GAMES_KEY).child(gameID).child(Game.WEST_KEY).child(Player.CARD_KEY).setValue("none_card.png");
+        database.child(StartActivity.GAMES_KEY).child(gameID).child(Game.WEST_KEY).child(Player.CARD_KEY).setValue("none_card");
 
 
         Toast.makeText(this, "Setup done!", Toast.LENGTH_SHORT).show();
