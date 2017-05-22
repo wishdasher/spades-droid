@@ -22,6 +22,7 @@ import java.util.IllformedLocaleException;
 import java.util.List;
 
 import ksmori.hu.ait.spades.R;
+import ksmori.hu.ait.spades.SpadesGameActivity;
 import ksmori.hu.ait.spades.SpadesGameScreen;
 import ksmori.hu.ait.spades.model.Card;
 import ksmori.hu.ait.spades.presenter.CardsDisplay;
@@ -95,6 +96,7 @@ public class PlayerCardsFragment extends FragmentTagged
                 }
             }
         }
+        getView().setOnTouchListener((View.OnTouchListener) mSpadesGameScreen);
     }
 
     private void correctLayout() {
@@ -118,7 +120,7 @@ public class PlayerCardsFragment extends FragmentTagged
                 }
                 widthInPixels += civ.getWidth();
                 prev = civ;
-                Log.d(TAG,"cards" + i + " width = "+widthInPixels);
+//                Log.d(TAG,"cards" + i + " cumulative width = "+widthInPixels);
             }
             LinearLayout layout = (LinearLayout) getView().findViewById(getResources()
                     .getIdentifier("ll_card_row_" + row, "id", "ksmori.hu.ait.spades"));
@@ -150,33 +152,31 @@ public class PlayerCardsFragment extends FragmentTagged
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        // give the parent activity a chance to handle the touch first
-        if(((View.OnTouchListener) getActivity()).onTouch(v, event)){
+        if (event.getActionMasked() == MotionEvent.ACTION_CANCEL){
             return true;
         }
         String actionStr = SpadesDebug.getActionString(event);
         Log.d(DEBUG_TAG,String.format("onTouch(%s,%s)",v.toString(),actionStr));
-
-        if(v instanceof CardImageView){
-            switch (event.getActionMasked()) {
-                case MotionEvent.ACTION_DOWN:
-                    Log.d(DEBUG_TAG,"setting Screen Active Card");
-                    mSpadesGameScreen.setActiveCard((CardImageView) v, event);
-                    removeCardFromHand(((CardImageView) v));
-                    return true;
-                default:
-                    break;
-            }
+        if(mSpadesGameScreen.getIsTouchable() && v instanceof CardImageView
+                && event.getActionMasked() == MotionEvent.ACTION_DOWN ){
+            Log.d(DEBUG_TAG,"setting Screen Active Card");
+            mSpadesGameScreen.setActiveCard((CardImageView) v);
+            removeCardFromHand(((CardImageView) v));
+            return true;
+        } else {
+            MotionEvent cancelEvt = MotionEvent.obtain(event);
+            cancelEvt.setAction(MotionEvent.ACTION_CANCEL);
+            v.dispatchTouchEvent(cancelEvt);
         }
-        return false;
+        return true;
     }
 
     private void removeCardFromHand(CardImageView c) {
         int i = playerCards.indexOf(c.getCard());
-        c.setImageDrawable(null);
-        c.setCard(null);
         if(i >= 0) {
             cardToPlay = playerCards.remove(i);
+            c.setImageDrawable(null);
+            c.setCard(null);
             loadContents();
             correctLayout();
         } else {
@@ -186,13 +186,21 @@ public class PlayerCardsFragment extends FragmentTagged
 
     @Override
     public void cancelCardSelection() {
-        if(playerCards.indexOf(cardToPlay) < 0){ // ?? this should always be true?
+        if(playerCards.indexOf(cardToPlay) < 0 && cardToPlay !=null){ // false if a card was played in sandbox
             playerCards.add(cardToPlay);
+            Collections.sort(playerCards);
+            loadContents();
+            correctLayout();
         } else {
-            Log.d(DEBUG_TAG,"Invalid card cancellation??");
+            Log.d(DEBUG_TAG,String.format("Invalid card cancellation: %s not held",cardToPlay));
+//            CardImageView civ = ((SpadesGameScreen) getActivity()).getActiveCard();
+//            Log.d(DEBUG_TAG,String.format("activeCard: width=%f,image=%d",civ.getWidth(),civ.getCard()));
+//            throw new IllegalArgumentException("cancelCardSelection operating on faulty info");
         }
-        Collections.sort(playerCards);
-        loadContents();
-        correctLayout();
+    }
+
+    @Override
+    public void removeSelectedCard() {
+        cardToPlay = null;
     }
 }

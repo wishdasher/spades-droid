@@ -4,4 +4,6 @@ package ksmori.hu.ait.spades.presenter;
 // needs to extend Fragment
 public interface CardsDisplay {
     public void cancelCardSelection();
+
+    void removeSelectedCard();
 }
