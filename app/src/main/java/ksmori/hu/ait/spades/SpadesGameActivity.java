@@ -62,6 +62,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     private Map<DatabaseReference, ValueEventListener> listenerMap;
     private boolean spadesBroken;
     private Map<String, String> mapPlayerToPos;
+    private Map<String, Integer> mapPositionToTricks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,8 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         isHostPlayer = getIntent().getBooleanExtra(WaitingRoomActivity.HOST_PLAYER_INTENT_KEY, false);
         spadesBroken = false;
         mapPlayerToPos = new HashMap<>();
+        mapPositionToTricks = new HashMap<>();
+        listenerMap = new HashMap<>();
 
         DatabaseReference mapRef = databaseGame.child(Game.MAP_PLAY2POS_KEY);
         mapRef.keepSynced(true);
@@ -103,17 +106,27 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
             }
         });
-        listenerMap = new HashMap<>();
+        final List<Card> myHand = new ArrayList<>();
+        // GET INITIAL CARDS
+        DatabaseReference cardsRef = databaseGame.child(myPosition).child(Player.HAND_KEY);
+        cardsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    myHand.add(child.getValue(Card.class));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
         setUpListeners();
 
         setupGameTableFragment();
 
-        //TODO TEST CODE EVENTUALLY DELETE
-        List<Card> playerCards = new ArrayList<>();
-        for (int i = Card.MIN_VALUE; i <= Card.MAX_VALUE; i++) {
-            playerCards.add(new Card(i, Card.Suit.SPADE));
-        }
-        setupPlayerCardsFragment(playerCards);
+        setupPlayerCardsFragment(myHand);
 
         activeCard = (CardImageView) findViewById(R.id.iv_active_card);
         activeCard.setOnTouchListener(this);
@@ -122,9 +135,8 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
         mSpadesPresenter = new SpadesPresenter();
 
-
         if (isHostPlayer) {
-            //TODO WILL EVENTUALLY BE BIDDING
+            //EVENTUALLY BE BIDDING
             databaseGame.child(Game.STATE_KEY).setValue(Game.State.PLAY);
         }
 
@@ -139,7 +151,54 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     }
 
     private void setUpListeners() {
-        // TODO set up listeners for players attributes
+        DatabaseReference northTricksRef = databaseGame.child(Player.NORTH_KEY).child(Player.TRICKS_KEY);
+        northTricksRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mapPositionToTricks.put(Game.NORTH_KEY, dataSnapshot.getValue(Integer.class));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        DatabaseReference eastTricksRef = databaseGame.child(Player.EAST_KEY).child(Player.TRICKS_KEY);
+        eastTricksRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mapPositionToTricks.put(Game.EAST_KEY, dataSnapshot.getValue(Integer.class));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        DatabaseReference southTricksRef = databaseGame.child(Player.SOUTH_KEY).child(Player.TRICKS_KEY);
+        southTricksRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mapPositionToTricks.put(Game.SOUTH_KEY, dataSnapshot.getValue(Integer.class));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        DatabaseReference westTricksRef = databaseGame.child(Player.WEST_KEY).child(Player.TRICKS_KEY);
+        westTricksRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mapPositionToTricks.put(Game.WEST_KEY, dataSnapshot.getValue(Integer.class));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
         DatabaseReference spadesBrokenRef = databaseGame.child(Game.SPADES_BROKEN_KEY);
         spadesBrokenRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -157,15 +216,10 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 switch (Game.State.valueOf(dataSnapshot.getValue(String.class))) {
-                    case BIDDING:
-                        break;
-                    case PLAY:
-                        break;
                     case RESET:
-                        break;
-                    case END:
-                        break;
-                    //TODO IMPLEMENT
+                        if (isHostPlayer) {
+                            setUpNextGame();
+                        }
                 }
             }
 
@@ -228,22 +282,8 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
                             databaseGame.child(Game.LAST_PLAYER_KEY).setValue(myName);
                             databaseGame.child(Game.NEXT_PLAYER_KEY).setValue(winningPlay.getPlayer());
                             String winningPos = mapPlayerToPos.get(winningPlay.getPlayer());
-                            DatabaseReference winningTrickRef = databaseGame.child(winningPos)
-                                    .child(Player.TRICKS_KEY);
-                            final int[] currentTricksTaken = new int[1];
-                            winningTrickRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    currentTricksTaken[0] = dataSnapshot.getValue(Integer.class);
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
                             databaseGame.child(winningPos)
-                                    .child(Player.TRICKS_KEY).setValue(currentTricksTaken[0] + 1);
+                                    .child(Player.TRICKS_KEY).setValue(mapPositionToTricks.get(winningPos) + 1);
                             databaseGame.child(Game.PLAYS_KEY).setValue(new ArrayList<>());
                             databaseGame.child(Game.CURRENT_SUIT_KEY).setValue(null);
                             databaseGame.child(Game.TRICK_NUMBER_KEY).setValue(trickNumber[0] + 1);
@@ -267,7 +307,11 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     }
 
     private void setUpNextGame() {
-        //TODO called from reset if the player is host
+        databaseGame.child(Game.SPADES_BROKEN_KEY).setValue(false);
+        databaseGame.child(Game.TRICK_NUMBER_KEY).setValue(1);
+        databaseGame.child(Game.NEXT_PLAYER_KEY).setValue(leftName);
+        databaseGame.child(Game.CURRENT_SUIT_KEY).setValue(null);
+        databaseGame.child(Game.PLAYS_KEY).setValue(new ArrayList<>());
     }
 
     private Play playCard() {

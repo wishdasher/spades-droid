@@ -40,6 +40,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
     private String playerKeyValue;
 
     private DatabaseReference database;
+    private DatabaseReference databaseGame;
     private Map<DatabaseReference, ValueEventListener> listenerMap;
 
     @Override
@@ -47,13 +48,17 @@ public class WaitingRoomActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waiting_room);
 
-        database = FirebaseDatabase.getInstance().getReference();
-        listenerMap = new HashMap<>();
 
         gameID = getIntent().getStringExtra(GAME_ID_INTENT_KEY);
         isHostPlayer = getIntent().getBooleanExtra(HOST_PLAYER_INTENT_KEY, false);
         playerKeyValue = getIntent().getStringExtra(PLAYER_MEMBER_INTENT_KEY);
         Toast.makeText(this, gameID, Toast.LENGTH_SHORT).show();
+
+        database = FirebaseDatabase.getInstance().getReference();
+        listenerMap = new HashMap<>();
+
+        databaseGame = FirebaseDatabase.getInstance().getReference().child(StartActivity.GAMES_KEY)
+                .child(gameID);
 
         DatabaseReference gamePlayersRef = database.child(StartActivity.GAMES_KEY)
                 .child(gameID)
@@ -220,27 +225,23 @@ public class WaitingRoomActivity extends AppCompatActivity {
         Card.Suit currentSuit = null;
         List<Play> plays = new ArrayList<>();
 
-        Game newGame = new Game(
-                hostPlayer,
-                north,
-                east,
-                south,
-                west,
-                teamNS,
-                teamEW,
-                state,
-                roundNumber,
-                gr,
-                spadesBroken,
-                trickNumber,
-                lastPlayer,
-                nextPlayer,
-                currentSuit,
-                plays
-        );
-        database.child(StartActivity.GAMES_KEY).child(gameID).setValue(newGame);
-        database.child(StartActivity.GAMES_KEY).child(gameID)
-                .child(Game.MAP_PLAY2POS_KEY).setValue(mapNameToPosition);
+        databaseGame.child(Game.HOST_KEY).setValue(hostPlayer);
+        databaseGame.child(Game.NORTH_KEY).setValue(north);
+        databaseGame.child(Game.EAST_KEY).setValue(east);
+        databaseGame.child(Game.SOUTH_KEY).setValue(south);
+        databaseGame.child(Game.WEST_KEY).setValue(west);
+        databaseGame.child(Game.TEAM_NS_KEY).setValue(teamNS);
+        databaseGame.child(Game.TEAM_EW_KEY).setValue(teamEW);
+        databaseGame.child(Game.ROUND_KEY).setValue(roundNumber);
+        databaseGame.child(Game.GAME_RECORD_KEY).setValue(gr);
+        databaseGame.child(Game.SPADES_BROKEN_KEY).setValue(false);
+        databaseGame.child(Game.TRICK_NUMBER_KEY).setValue(trickNumber);
+        databaseGame.child(Game.LAST_PLAYER_KEY).setValue(lastPlayer);
+        databaseGame.child(Game.NEXT_PLAYER_KEY).setValue(nextPlayer);
+        databaseGame.child(Game.CURRENT_SUIT_KEY).setValue(currentSuit);
+        databaseGame.child(Game.PLAYS_KEY).setValue(plays);
+
+        databaseGame.child(Game.MAP_PLAY2POS_KEY).setValue(mapNameToPosition);
 
         try {
             Thread.sleep(2000);
@@ -249,7 +250,6 @@ public class WaitingRoomActivity extends AppCompatActivity {
         }
 
         Toast.makeText(this, "Setup done!", Toast.LENGTH_SHORT).show();
-        database.child(StartActivity.GAMES_KEY).child(gameID)
-                .child(Game.STATE_KEY).setValue(Game.State.READY);
+        databaseGame.child(Game.STATE_KEY).setValue(Game.State.READY);
     }
 }

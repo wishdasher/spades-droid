@@ -28,6 +28,7 @@ public class Player {
     @Exclude public static final String WEST_KEY = "west";
     @Exclude public static final String LEFT_KEY = "left";
     @Exclude public static final String TRICKS_KEY = "tricks";
+    @Exclude public static final String HAND_KEY = "hand";
 
     private String name;
     private Bid bid;
