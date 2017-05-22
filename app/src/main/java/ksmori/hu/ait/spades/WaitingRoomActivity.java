@@ -157,7 +157,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
 
         List<String> playersList = new ArrayList<>();
         for (DataSnapshot child : playerSnapshot.getChildren()) {
-            playersList.add((String) child.getValue());
+            playersList.add(child.getValue(String.class));
         }
 
         Deck deck = new Deck();
@@ -239,12 +239,17 @@ public class WaitingRoomActivity extends AppCompatActivity {
                 plays
         );
         database.child(StartActivity.GAMES_KEY).child(gameID).setValue(newGame);
+        database.child(StartActivity.GAMES_KEY).child(gameID)
+                .child(Game.MAP_PLAY2POS_KEY).setValue(mapNameToPosition);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         Toast.makeText(this, "Setup done!", Toast.LENGTH_SHORT).show();
         database.child(StartActivity.GAMES_KEY).child(gameID)
                 .child(Game.STATE_KEY).setValue(Game.State.READY);
-        database.child(StartActivity.GAMES_KEY).child(gameID)
-                .child(Game.MAP_PLAY2POS_KEY).setValue(mapNameToPosition);
-        //TODO store mapping of players to position
-
     }
 }

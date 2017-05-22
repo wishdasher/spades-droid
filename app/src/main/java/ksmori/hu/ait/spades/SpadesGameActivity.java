@@ -55,7 +55,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
     private String myName;
     private String leftName;
-    private String myPosition;
+    private String myPosition = "north";
     private String gameID;
     private boolean isHostPlayer;
     private DatabaseReference databaseGame;
@@ -73,12 +73,16 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         databaseGame = FirebaseDatabase.getInstance().getReference().child(StartActivity.GAMES_KEY).child(gameID);
         isHostPlayer = getIntent().getBooleanExtra(WaitingRoomActivity.HOST_PLAYER_INTENT_KEY, false);
         spadesBroken = false;
+        mapPlayerToPos = new HashMap<>();
 
         DatabaseReference mapRef = databaseGame.child(Game.MAP_PLAY2POS_KEY);
-        mapRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        mapRef.keepSynced(true);
+        mapRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                mapPlayerToPos = dataSnapshot.getValue(HashMap.class);
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    mapPlayerToPos.put(child.getKey(), child.getValue(String.class));
+                }
                 myPosition = mapPlayerToPos.get(myName);
             }
 
@@ -269,7 +273,8 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     private Play playCard() {
         final Player[] myPlayerArray = new Player[1];
         DatabaseReference playerRef = databaseGame.child(myPosition);
-        playerRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        playerRef.keepSynced(true);
+        ValueEventListener playerRefListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 myPlayerArray[0] = dataSnapshot.getValue(Player.class);
@@ -279,7 +284,8 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        };
+        playerRef.addListenerForSingleValueEvent(playerRefListener);
         Player myPlayer = myPlayerArray[0];
         final Card.Suit[] currentSuit = new Card.Suit[1];
         DatabaseReference currentSuitRef = databaseGame.child(Game.CURRENT_SUIT_KEY);
