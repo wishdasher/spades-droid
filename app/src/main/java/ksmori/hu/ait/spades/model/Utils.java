@@ -4,7 +4,7 @@ package ksmori.hu.ait.spades.model;
 import java.util.List;
 
 public class Utils {
-    public static String getTrickWinner(List<Play> plays) {
+    public static Play getWinningPlay(List<Play> plays) {
         assert plays.size() == Game.NUM_PLAYERS;
 
         Play currentWinner = plays.get(0);
@@ -20,6 +20,6 @@ public class Utils {
             }
         }
 
-        return currentWinner.getPlayer();
+        return currentWinner;
     }
 }

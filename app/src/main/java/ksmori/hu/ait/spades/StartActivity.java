@@ -84,7 +84,7 @@ public class StartActivity extends AppCompatActivity {
                 statesRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.getValue().equals(Game.State.WAITING.name())) {
+                        if (dataSnapshot.getValue(String.class).equals(Game.State.WAITING.name())) {
                             //Add player to the chosen game's list of players
                             String playerKey = FirebaseDatabase.getInstance().getReference().child(GAMES_KEY).child(gameID)
                                     .child(PLAYERS_KEY).push().getKey();

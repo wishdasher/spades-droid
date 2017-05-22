@@ -176,7 +176,11 @@ public class PlayerCardsFragment extends FragmentTagged
 
     @Override
     public void cancelCardSelection() {
-        playerCards.add(cardToPlay);
+        if(playerCards.indexOf(cardToPlay) < 0){ // ?? this should always be true?
+            playerCards.add(cardToPlay);
+        } else {
+            Log.d(DEBUG_TAG,"Invalid card cancellation??");
+        }
         Collections.sort(playerCards);
         loadContents();
     }

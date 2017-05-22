@@ -27,6 +27,7 @@ public class Player {
     @Exclude public static final String SOUTH_KEY = "south";
     @Exclude public static final String WEST_KEY = "west";
     @Exclude public static final String LEFT_KEY = "left";
+    @Exclude public static final String TRICKS_KEY = "tricks";
 
     private String name;
     private Bid bid;
@@ -79,7 +80,17 @@ public class Player {
     @Exclude
     public List<Card> getPlayableHand(final Card.Suit currentSuit, final boolean spadesBroken) {
         if (currentSuit == null) {
-            return hand;
+            if (spadesBroken) {
+                return hand;
+            } else {
+                List<Card> playableCards = new ArrayList<>();
+                for (Card card : hand) {
+                    if (card.getSuitValue() != Card.Suit.SPADE) {
+                        playableCards.add(card);
+                    }
+                }
+                return playableCards;
+            }
         }
         else {
             List<Card> playableCards = new ArrayList<>();

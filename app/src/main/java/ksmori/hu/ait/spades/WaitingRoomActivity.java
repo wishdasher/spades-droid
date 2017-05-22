@@ -79,7 +79,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
         ValueEventListener statesListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                    switch (Game.State.valueOf((String) dataSnapshot.getValue())) {
+                    switch (Game.State.valueOf(dataSnapshot.getValue(String.class))) {
                     case READY:
                         removeListeners();
                         //TODO START GAME
@@ -118,12 +118,9 @@ public class WaitingRoomActivity extends AppCompatActivity {
         int numPlayers = 0;
 
         for (DataSnapshot child : dataSnapshot.getChildren()) {
-            Toast.makeText(this, "DEBUG " + child.getValue(), Toast.LENGTH_SHORT).show();
             players += child.getValue() + "\n";
             numPlayers += 1;
         }
-
-        Toast.makeText(this, "DEBUG total " + numPlayers, Toast.LENGTH_SHORT).show();
 
         TextView tvPlayers = (TextView) findViewById(R.id.tv_all_players);
         tvPlayers.setText(players);

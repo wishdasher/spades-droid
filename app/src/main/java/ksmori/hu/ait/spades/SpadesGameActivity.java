@@ -1,8 +1,11 @@
 package ksmori.hu.ait.spades;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -38,9 +41,9 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         View.OnTouchListener{
 
     private static final String DEBUG_TAG = "SpadesGameActivity";
-
+    private static final long ANIM_DURATION_MILLIS = 750;
     private SpadesPresenter mSpadesPresenter;
-    private View mGameView;
+    private Fragment mGameFragment;
     private CardPresenter mCardPresenter;
     private SpadesGameRootLayout rootLayout;
 
@@ -57,7 +60,8 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     private boolean isHostPlayer;
     private DatabaseReference databaseGame;
     private Map<DatabaseReference, ValueEventListener> listenerMap;
-
+    private boolean spadesBroken;
+    private Map<String, String> mapPlayerToPos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,13 +72,14 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         gameID = getIntent().getStringExtra(WaitingRoomActivity.GAME_ID_INTENT_KEY);
         databaseGame = FirebaseDatabase.getInstance().getReference().child(StartActivity.GAMES_KEY).child(gameID);
         isHostPlayer = getIntent().getBooleanExtra(WaitingRoomActivity.HOST_PLAYER_INTENT_KEY, false);
+        spadesBroken = false;
 
         DatabaseReference mapRef = databaseGame.child(Game.MAP_PLAY2POS_KEY);
         mapRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Map<String, String> map = dataSnapshot.getValue(HashMap.class);
-                myPosition = map.get(myName);
+                mapPlayerToPos = dataSnapshot.getValue(HashMap.class);
+                myPosition = mapPlayerToPos.get(myName);
             }
 
             @Override
@@ -87,7 +92,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         leftRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                leftName = (String) dataSnapshot.getValue();
+                leftName = dataSnapshot.getValue(String.class);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -108,13 +113,17 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
         activeCard = (CardImageView) findViewById(R.id.iv_active_card);
         activeCard.setOnTouchListener(this);
-        rootLayout = (SpadesGameRootLayout) findViewById(R.id.layout_root_game_activity);
+//        rootLayout = (SpadesGameRootLayout) findViewById(R.id.layout_root_game_activity);
         activeCard.bringToFront();
+
+        mSpadesPresenter = new SpadesPresenter();
+
 
         if (isHostPlayer) {
             //TODO WILL EVENTUALLY BE BIDDING
             databaseGame.child(Game.STATE_KEY).setValue(Game.State.PLAY);
         }
+
     }
 
     @Override
@@ -126,12 +135,24 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     }
 
     private void setUpListeners() {
-        // set up listeners for players
+        // TODO set up listeners for players attributes
+        DatabaseReference spadesBrokenRef = databaseGame.child(Game.SPADES_BROKEN_KEY);
+        spadesBrokenRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                spadesBroken = dataSnapshot.getValue(Boolean.class);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
         DatabaseReference stateRef = databaseGame.child(Game.STATE_KEY);
         stateRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                switch (Game.State.valueOf((String) dataSnapshot.getValue())) {
+                switch (Game.State.valueOf(dataSnapshot.getValue(String.class))) {
                     case BIDDING:
                         break;
                     case PLAY:
@@ -153,7 +174,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         nextPlayerRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                String nextPlayer = (String) dataSnapshot.getValue();
+                String nextPlayer = dataSnapshot.getValue(String.class);
                 if (nextPlayer.equals(myName)) {
                     // IT IS MY TURN
                     final int[] trickNumber = new int[1];
@@ -161,7 +182,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
                     trickRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            trickNumber[0] = (Integer) dataSnapshot.getValue();
+                            trickNumber[0] = dataSnapshot.getValue(Integer.class);
                         }
 
                         @Override
@@ -195,13 +216,39 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
                         plays.add(myPlay);
                         if (plays.size() == Game.NUM_PLAYERS) {
                             // TRICK IS OVER
-                            String winningPlayer = Utils.getTrickWinner(plays);
+                            Play winningPlay = Utils.getWinningPlay(plays);
+                            if (!spadesBroken && winningPlay.getCard().getSuitValue() == Card.Suit.SPADE) {
+                                spadesBroken = true;
+                                databaseGame.child(Game.SPADES_BROKEN_KEY).setValue(true);
+                            }
                             databaseGame.child(Game.LAST_PLAYER_KEY).setValue(myName);
-                            databaseGame.child(Game.NEXT_PLAYER_KEY).setValue(winningPlayer);
+                            databaseGame.child(Game.NEXT_PLAYER_KEY).setValue(winningPlay.getPlayer());
+                            String winningPos = mapPlayerToPos.get(winningPlay.getPlayer());
+                            DatabaseReference winningTrickRef = databaseGame.child(winningPos)
+                                    .child(Player.TRICKS_KEY);
+                            final int[] currentTricksTaken = new int[1];
+                            winningTrickRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    currentTricksTaken[0] = dataSnapshot.getValue(Integer.class);
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+                            databaseGame.child(winningPos)
+                                    .child(Player.TRICKS_KEY).setValue(currentTricksTaken[0] + 1);
                             databaseGame.child(Game.PLAYS_KEY).setValue(new ArrayList<>());
+                            databaseGame.child(Game.CURRENT_SUIT_KEY).setValue(null);
                             databaseGame.child(Game.TRICK_NUMBER_KEY).setValue(trickNumber[0] + 1);
                         } else {
                             // TRICK CONTINUES
+                            if (plays.size() == 1) {
+                                databaseGame.child(Game.CURRENT_SUIT_KEY).setValue(myPlay.getCard().getSuit());
+                            }
+                            databaseGame.child(Game.PLAYS_KEY).setValue(plays);
                             databaseGame.child(Game.NEXT_PLAYER_KEY).setValue(leftName);
                         }
                     }
@@ -220,6 +267,34 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     }
 
     private Play playCard() {
+        final Player[] myPlayerArray = new Player[1];
+        DatabaseReference playerRef = databaseGame.child(myPosition);
+        playerRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                myPlayerArray[0] = dataSnapshot.getValue(Player.class);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        Player myPlayer = myPlayerArray[0];
+        final Card.Suit[] currentSuit = new Card.Suit[1];
+        DatabaseReference currentSuitRef = databaseGame.child(Game.CURRENT_SUIT_KEY);
+        currentSuitRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                currentSuit[0] = Card.Suit.valueOf(dataSnapshot.getValue(String.class));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        List<Card> playableCards = myPlayer.getPlayableHand(currentSuit[0], spadesBroken);
         return null;
         //TODO implmeent for David
     }
@@ -232,8 +307,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         ft.add(R.id.fl_game_table_container, gtf,GameTableFragment.TAG);
         ft.commit();
 
-
-        mGameView = gtf.getView();
+        mGameFragment = gtf;
     }
 
     private void setupPlayerCardsFragment(List<Card> playerCards) {
@@ -324,8 +398,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
                     } else if (lastAction == MotionEvent.ACTION_MOVE){
                         Log.d(DEBUG_TAG, "ActiveCard dragUp!");
                         if(inPlayArea(event.getRawX(),event.getRawY())){
-                            performPlayAnimation(v);
-                            mSpadesPresenter.playCard(((CardImageView) v).getCard());
+                            performPlayAnimation();
                         }
                     }
                     break;
@@ -342,12 +415,39 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     }
 
     private boolean inPlayArea(float rawX, float rawY) {
-        return false;
+        View gameView = mGameFragment.getView();
+        if(gameView!=null) {
+            int[] gameLoc = new int[2];
+            gameView.getLocationOnScreen(gameLoc);
+            int minX = gameLoc[0];
+            int maxX = minX + gameView.getWidth();
+            int minY = gameLoc[1];
+            int maxY = minY + gameView.getHeight();
+            Log.d(DEBUG_TAG, String.format("X validation: %d < %f < %d ?",minX, rawX, maxX));
+            Log.d(DEBUG_TAG, String.format("Y validation: %d < %f < %d ?",minY, rawY, maxY));
+
+            return (minX <= rawX && rawX <= maxX && minY <= rawY && rawY <= maxY);
+        } else {
+            return false;
+        }
     }
 
-    private void performPlayAnimation(View v) {
-
+    private void performPlayAnimation() {
+        View viewTarget = mGameFragment.getView().findViewById(R.id.iv_player_card_bottom);
+        int[] targetLoc = new int[2];
+        viewTarget.getLocationOnScreen(targetLoc);
+        float endX = (float) targetLoc[0] - activeCardOriginalLocation[0];
+        float endY = (float) targetLoc[1] - activeCardOriginalLocation[1];
+        ViewPropertyAnimatorCompat vpAnim = ViewCompat.animate(activeCard).translationX(endX).translationY(endY);
+        vpAnim.scaleXBy(viewTarget.getWidth() / (float) activeCard.getWidth());
+        vpAnim.scaleYBy(viewTarget.getHeight() / (float) activeCard.getHeight());
+        vpAnim.setDuration(ANIM_DURATION_MILLIS);
+        vpAnim.withEndAction(new Runnable() {
+            @Override
+            public void run() {
+                mSpadesPresenter.playCard(activeCard.getCard());
+            }
+        });
+        vpAnim.start();
     }
-
-
 }
