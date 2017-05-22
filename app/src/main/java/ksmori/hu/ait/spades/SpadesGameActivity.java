@@ -89,41 +89,92 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         isHostPlayer = getIntent().getBooleanExtra(WaitingRoomActivity.HOST_PLAYER_INTENT_KEY, false);
         spadesBroken = false;
         mapPlayerToPos = new HashMap<>();
-
-        final List<Player> players = new ArrayList<>();
-        DatabaseReference playersRef = databaseGame.child(StartActivity.PLAYERS_KEY);
-        playersRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    players.add(child.getValue(Player.class));
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        north = players.get(0);
-        east = players.get(1);
-        south = players.get(2);
-        west = players.get(3);
-
-        if (myName.equals(north.getName())) {
-            myPosition = Player.NORTH_KEY;
-            mePlayer = north;
-        } else if (myName.equals(east.getName())) {
-            myPosition = Player.EAST_KEY;
-            mePlayer = east;
-        } else if (myName.equals(south.getName())) {
-            myPosition = Player.SOUTH_KEY;
-            mePlayer = south;
-        } else if (myName.equals(west.getName())) {
-            myPosition = Player.WEST_KEY;
-            mePlayer = west;
-        }
+//
+//        final List<String> playerNames = new ArrayList<>();
+//        DatabaseReference playersRef = databaseGame.child(StartActivity.PLAYERS_KEY);
+//        playersRef.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for (DataSnapshot child : dataSnapshot.getChildren()) {
+//                    playerNames.add(child.getValue(String.class));
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+//        DatabaseReference ref1 = databaseGame.child(playerNames.get(0));
+//        ref1.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for (DataSnapshot child : dataSnapshot.getChildren()) {
+//                    north = dataSnapshot.getValue(Player.class);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+//        DatabaseReference ref2 = databaseGame.child(playerNames.get(1));
+//        ref2.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for (DataSnapshot child : dataSnapshot.getChildren()) {
+//                    east = dataSnapshot.getValue(Player.class);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+//        DatabaseReference ref3 = databaseGame.child(playerNames.get(2));
+//        ref3.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for (DataSnapshot child : dataSnapshot.getChildren()) {
+//                    south = dataSnapshot.getValue(Player.class);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+//        DatabaseReference ref4 = databaseGame.child(playerNames.get(3));
+//        ref4.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for (DataSnapshot child : dataSnapshot.getChildren()) {
+//                    west = dataSnapshot.getValue(Player.class);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+//
+//        if (myName.equals(north.getName())) {
+//            myPosition = Player.NORTH_KEY;
+//            mePlayer = north;
+//        } else if (myName.equals(east.getName())) {
+//            myPosition = Player.EAST_KEY;
+//            mePlayer = east;
+//        } else if (myName.equals(south.getName())) {
+//            myPosition = Player.SOUTH_KEY;
+//            mePlayer = south;
+//        } else if (myName.equals(west.getName())) {
+//            myPosition = Player.WEST_KEY;
+//            mePlayer = west;
+//        }
 
 //        DatabaseReference mapRef = databaseGame.child(Game.MAP_PLAY2POS_KEY);
 //        mapRef.keepSynced(true);
@@ -160,7 +211,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
         Deck deck = new Deck();
         List<ArrayList<Card>> hands = deck.deal(Game.NUM_PLAYERS);
-        setupPlayerCardsFragment(mePlayer.getHand());
+        setupPlayerCardsFragment(hands.get(0));
 
 //        String gameID = getIntent().getStringExtra(WaitingRoomActivity.GAME_ID_INTENT_KEY);
 //        boolean isHost = getIntent().getBooleanExtra(WaitingRoomActivity.HOST_PLAYER_INTENT_KEY, false);

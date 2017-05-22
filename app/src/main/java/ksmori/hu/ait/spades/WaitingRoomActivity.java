@@ -122,7 +122,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
         TextView tvPlayers = (TextView) findViewById(R.id.tv_all_players);
         tvPlayers.setText(players);
 
-        if (isHostPlayer) {
+        if (numPlayers == Game.NUM_PLAYERS && isHostPlayer) {
             new AlertDialog.Builder(this)
                     .setTitle("Start game")
                     .setMessage("There are four players, start game?")
