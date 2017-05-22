@@ -59,10 +59,10 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     private String gameID;
     private boolean isHostPlayer;
     private DatabaseReference databaseGame;
-    private Map<DatabaseReference, ValueEventListener> listenerMap;
-    private boolean spadesBroken;
-    private Map<String, String> mapPlayerToPos;
-    private Map<String, Integer> mapPositionToTricks;
+    private Map<DatabaseReference, ValueEventListener> listenerMap = new HashMap<>();
+    private boolean spadesBroken = false;
+    private Map<String, String> mapPlayerToPos = new HashMap<>();
+    private Map<String, Integer> mapPositionToTricks = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,10 +73,6 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         gameID = getIntent().getStringExtra(WaitingRoomActivity.GAME_ID_INTENT_KEY);
         databaseGame = FirebaseDatabase.getInstance().getReference().child(StartActivity.GAMES_KEY).child(gameID);
         isHostPlayer = getIntent().getBooleanExtra(WaitingRoomActivity.HOST_PLAYER_INTENT_KEY, false);
-        spadesBroken = false;
-        mapPlayerToPos = new HashMap<>();
-        mapPositionToTricks = new HashMap<>();
-        listenerMap = new HashMap<>();
 
         DatabaseReference mapRef = databaseGame.child(Game.MAP_PLAY2POS_KEY);
         mapRef.keepSynced(true);

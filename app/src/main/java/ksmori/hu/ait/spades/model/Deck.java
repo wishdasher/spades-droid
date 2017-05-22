@@ -15,7 +15,7 @@ public class Deck {
     public Deck() {
         deck = new ArrayList<>();
         for (Card.Suit suit : Card.Suit.values()) {
-            for (int value = Card.MIN_VALUE; value < Card.MAX_VALUE; value++) {
+            for (int value = Card.MIN_VALUE; value <= Card.MAX_VALUE; value++) {
                 deck.add(new Card(value, suit));
             }
         }

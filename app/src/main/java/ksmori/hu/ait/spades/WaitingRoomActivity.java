@@ -24,7 +24,6 @@ import ksmori.hu.ait.spades.model.Card;
 import ksmori.hu.ait.spades.model.Deck;
 import ksmori.hu.ait.spades.model.Game;
 import ksmori.hu.ait.spades.model.GameRecord;
-import ksmori.hu.ait.spades.model.Play;
 import ksmori.hu.ait.spades.model.Player;
 import ksmori.hu.ait.spades.model.Team;
 
@@ -213,17 +212,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
         Team teamNS = new Team(north.getName(), south.getName(), 0, 0);
         Team teamEW = new Team(east.getName(), west.getName(), 0, 0);
 
-        Game.State state = SETUP;
-
-        int roundNumber = 1;
         GameRecord gr = new GameRecord(teamNS.getName(), teamEW.getName(), new ArrayList<Integer>(), new ArrayList<Integer>());
-
-        boolean spadesBroken = false;
-        int trickNumber = 1;
-        String lastPlayer = hostPlayer;
-        String nextPlayer = hostPlayer;
-        Card.Suit currentSuit = null;
-        List<Play> plays = new ArrayList<>();
 
         databaseGame.child(Game.HOST_KEY).setValue(hostPlayer);
         databaseGame.child(Game.NORTH_KEY).setValue(north);
@@ -232,14 +221,15 @@ public class WaitingRoomActivity extends AppCompatActivity {
         databaseGame.child(Game.WEST_KEY).setValue(west);
         databaseGame.child(Game.TEAM_NS_KEY).setValue(teamNS);
         databaseGame.child(Game.TEAM_EW_KEY).setValue(teamEW);
-        databaseGame.child(Game.ROUND_KEY).setValue(roundNumber);
+        databaseGame.child(Game.STATE_KEY).setValue(SETUP);
+        databaseGame.child(Game.ROUND_KEY).setValue(1);
         databaseGame.child(Game.GAME_RECORD_KEY).setValue(gr);
         databaseGame.child(Game.SPADES_BROKEN_KEY).setValue(false);
-        databaseGame.child(Game.TRICK_NUMBER_KEY).setValue(trickNumber);
-        databaseGame.child(Game.LAST_PLAYER_KEY).setValue(lastPlayer);
-        databaseGame.child(Game.NEXT_PLAYER_KEY).setValue(nextPlayer);
-        databaseGame.child(Game.CURRENT_SUIT_KEY).setValue(currentSuit);
-        databaseGame.child(Game.PLAYS_KEY).setValue(plays);
+        databaseGame.child(Game.TRICK_NUMBER_KEY).setValue(1);
+        databaseGame.child(Game.LAST_PLAYER_KEY).setValue(hostPlayer);
+        databaseGame.child(Game.NEXT_PLAYER_KEY).setValue(hostPlayer);
+        databaseGame.child(Game.CURRENT_SUIT_KEY).setValue(null);
+        databaseGame.child(Game.PLAYS_KEY).setValue(new ArrayList<>());
 
         databaseGame.child(Game.MAP_PLAY2POS_KEY).setValue(mapNameToPosition);
 
