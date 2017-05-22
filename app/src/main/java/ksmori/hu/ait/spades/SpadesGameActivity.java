@@ -1,15 +1,17 @@
 package ksmori.hu.ait.spades;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -20,6 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,9 +33,8 @@ import ksmori.hu.ait.spades.model.Game;
 import ksmori.hu.ait.spades.model.Play;
 import ksmori.hu.ait.spades.model.Player;
 import ksmori.hu.ait.spades.model.Utils;
-import ksmori.hu.ait.spades.presenter.CardPresenter;
+import ksmori.hu.ait.spades.presenter.CardsDisplay;
 import ksmori.hu.ait.spades.presenter.SpadesPresenter;
-import ksmori.hu.ait.spades.util.SpadesDebug;
 import ksmori.hu.ait.spades.view.CardImageView;
 import ksmori.hu.ait.spades.view.GameTableFragment;
 import ksmori.hu.ait.spades.view.PlayerCardsFragment;
@@ -43,13 +45,19 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
     private static final String DEBUG_TAG = "SpadesGameActivity";
     private static final long ANIM_DURATION_MILLIS = 750;
+    public static final float PLAY_AREA_MIN_WIDTH_PERCENT = 0.25f;
+    public static final float PLAY_AREA_MAX_WIDTH_PERCENT = 0.75f;
+    public static final float PLAY_AREA_MIN_HEIGHT_PERCENT = 0.34f;
+    public static final float PLAY_AREA_MAX_HEIGHT_PERCENT = 0.95f;
     private SpadesPresenter mSpadesPresenter;
     private Fragment mGameFragment;
-    private CardPresenter mCardPresenter;
+    private CardsDisplay mCardsDisplay;
     private SpadesGameRootLayout rootLayout;
+    private List<Card> playerCards;
 
     private CardImageView activeCard;
     private int[] activeCardOriginalLocation;
+    private int[] cardCancelLocation;
     private float dX;
     private float dY;
     private int lastAction;
@@ -114,18 +122,16 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         List<ArrayList<Card>> hands = deck.deal(Game.NUM_PLAYERS);
         setupPlayerCardsFragment(hands.get(0));
 
+//        String gameID = getIntent().getStringExtra(WaitingRoomActivity.GAME_ID_INTENT_KEY);
+//        boolean isHost = getIntent().getBooleanExtra(WaitingRoomActivity.HOST_PLAYER_INTENT_KEY, false);
+//        mSpadesPresenter = new SpadesPresenter(gameID,isHost);
+        setupGameTableFragment();
+
         activeCard = (CardImageView) findViewById(R.id.iv_active_card);
         activeCard.setOnTouchListener(this);
-//        rootLayout = (SpadesGameRootLayout) findViewById(R.id.layout_root_game_activity);
+        rootLayout = (SpadesGameRootLayout) findViewById(R.id.layout_root_game_activity);
         activeCard.bringToFront();
 
-        mSpadesPresenter = new SpadesPresenter();
-
-
-        if (isHostPlayer) {
-            //TODO WILL EVENTUALLY BE BIDDING
-            databaseGame.child(Game.STATE_KEY).setValue(Game.State.PLAY);
-        }
 
     }
 
@@ -326,14 +332,14 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         ft.add(R.id.fl_player_cards_container, pcf,PlayerCardsFragment.TAG);
         ft.commit();
 
-        mCardPresenter = pcf;
+        mCardsDisplay = pcf;
     }
 
 
     @Override
     public void displayBidding() {
-        Player player = mSpadesPresenter.getBiddingPlayer();
-        List<Card> playerCards = mSpadesPresenter.getCards(player);
+        //TODO ADD AN ACTUAL BIDDING FRAGMENT AND LOGIC
+        List<Card> playerCards = mSpadesPresenter.getCards();
         setupPlayerCardsFragment(playerCards);
 
     }
@@ -346,39 +352,47 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     @Override
     public void setActiveCard(CardImageView civ, MotionEvent touchEvent) {
         if(civ == null){
-            activeCard.setImageResource(0);// invalid/none
-            SpadesGameRootLayout.LayoutParams p =
-                    (SpadesGameRootLayout.LayoutParams) activeCard.getLayoutParams();
-            p.width = 0;
-            p.height = 0;
-            activeCard.setLayoutParams(p);
+            hideActiveCard();
         } else {
             activeCard.setLayoutParams(new SpadesGameRootLayout.LayoutParams(
                     civ.getWidth(),civ.getHeight()));
-            activeCard.setImageResource(/*(Integer) civ.getTag()*/R.drawable.card_2_of_diamonds);
-            activeCard.setTag(civ.getTag());
+            int resID = getResources().getIdentifier(Card.determineImageName(civ.getCard()),
+                    "drawable","ksmori.hu.ait.spades");
+            activeCard.setImageResource(resID);
+            activeCard.setCard(civ.getCard());
 
-//            Log.d(DEBUG_TAG,String.format("Active Card: x.locOG=%d, y.locOG=%d",
-//                    activeCardOriginalLocation[0],activeCardOriginalLocation[1]));
+            Log.d(DEBUG_TAG,String.format("Active Card: x.locOG=%d, y.locOG=%d",
+                    activeCardOriginalLocation[0],activeCardOriginalLocation[1]));
             int[] loc = new int[2];
             civ.getLocationOnScreen(loc);
+            cardCancelLocation = Arrays.copyOf(loc,loc.length);
             activeCard.setX(loc[0] - activeCardOriginalLocation[0]);
             activeCard.setY(loc[1] - activeCardOriginalLocation[1]);
 
             activeCard.bringToFront();
             activeCard.requestLayout();
 
-            // Attempt to steal subsequent ACTION_MOVEs from other cardimageviews
+            // Capture the first DOWN event and pointer location
             MotionEvent subscribe = MotionEvent.obtain(touchEvent);
             subscribe.setAction(MotionEvent.ACTION_DOWN);
             activeCard.dispatchTouchEvent(subscribe);
         }
     }
 
+    private void hideActiveCard() {
+        activeCard.setImageResource(0);// invalid/none
+        activeCard.setCard(null);
+        SpadesGameRootLayout.LayoutParams p =
+                (SpadesGameRootLayout.LayoutParams) activeCard.getLayoutParams();
+        p.width = 0;
+        p.height = 0;
+        activeCard.setLayoutParams(p);
+    }
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        String actionStr = SpadesDebug.getActionString(event);
-        Log.d(DEBUG_TAG, String.format("onTouch(%s,%s)", v.toString(), actionStr));
+//        String actionStr = SpadesDebug.getActionString(event);
+//        Log.d(DEBUG_TAG, String.format("onTouch(%s,%s)", v.toString(), actionStr));
         if(event.getActionMasked() == MotionEvent.ACTION_CANCEL){
             return true;
         } else if(v.getId() == R.id.iv_active_card){
@@ -399,11 +413,13 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
                 case MotionEvent.ACTION_UP:
                     if (lastAction == MotionEvent.ACTION_DOWN) {
                         Log.d(DEBUG_TAG, "ActiveCard clickUp!");
-                        mCardPresenter.cancelCardSelection();
+                        performCancelAnimation();
                     } else if (lastAction == MotionEvent.ACTION_MOVE){
                         Log.d(DEBUG_TAG, "ActiveCard dragUp!");
                         if(inPlayArea(event.getRawX(),event.getRawY())){
                             performPlayAnimation();
+                        } else {
+                            performCancelAnimation();
                         }
                     }
                     break;
@@ -419,15 +435,50 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         return false;
     }
 
+    private void performCancelAnimation() {
+        float endX = cardCancelLocation[0] - activeCardOriginalLocation[0];
+        float endY = cardCancelLocation[1] - activeCardOriginalLocation[1];
+
+        AnimatorSet animSet = new AnimatorSet();
+        animSet.setDuration(ANIM_DURATION_MILLIS);
+        ObjectAnimator animTransX = ObjectAnimator.ofFloat(activeCard, "X", endX);
+        ObjectAnimator animTransY = ObjectAnimator.ofFloat(activeCard, "Y", endY);
+        animTransY.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                hideActiveCard();
+                mCardsDisplay.cancelCardSelection();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                hideActiveCard();
+                mCardsDisplay.cancelCardSelection();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        animSet.playTogether(animTransX,animTransY); // lol
+        animSet.start();
+    }
+
     private boolean inPlayArea(float rawX, float rawY) {
         View gameView = mGameFragment.getView();
         if(gameView!=null) {
             int[] gameLoc = new int[2];
             gameView.getLocationOnScreen(gameLoc);
-            int minX = gameLoc[0];
-            int maxX = minX + gameView.getWidth();
-            int minY = gameLoc[1];
-            int maxY = minY + gameView.getHeight();
+            int minX = gameLoc[0] + Math.round(PLAY_AREA_MIN_WIDTH_PERCENT *gameView.getWidth());
+            int maxX = gameLoc[0] + Math.round(PLAY_AREA_MAX_WIDTH_PERCENT *gameView.getWidth());
+            int minY = gameLoc[1] + Math.round(PLAY_AREA_MIN_HEIGHT_PERCENT*gameView.getHeight());
+            int maxY = gameLoc[1] + Math.round(PLAY_AREA_MAX_HEIGHT_PERCENT*gameView.getHeight());
             Log.d(DEBUG_TAG, String.format("X validation: %d < %f < %d ?",minX, rawX, maxX));
             Log.d(DEBUG_TAG, String.format("Y validation: %d < %f < %d ?",minY, rawY, maxY));
 
@@ -438,21 +489,62 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     }
 
     private void performPlayAnimation() {
-        View viewTarget = mGameFragment.getView().findViewById(R.id.iv_player_card_bottom);
+        final ImageView viewTarget = (ImageView) mGameFragment.getView().findViewById(R.id.iv_player_card_bottom);
         int[] targetLoc = new int[2];
         viewTarget.getLocationOnScreen(targetLoc);
-        float endX = (float) targetLoc[0] - activeCardOriginalLocation[0];
-        float endY = (float) targetLoc[1] - activeCardOriginalLocation[1];
-        ViewPropertyAnimatorCompat vpAnim = ViewCompat.animate(activeCard).translationX(endX).translationY(endY);
-        vpAnim.scaleXBy(viewTarget.getWidth() / (float) activeCard.getWidth());
-        vpAnim.scaleYBy(viewTarget.getHeight() / (float) activeCard.getHeight());
-        vpAnim.setDuration(ANIM_DURATION_MILLIS);
-        vpAnim.withEndAction(new Runnable() {
+        final float endX = (float) targetLoc[0] - activeCardOriginalLocation[0];
+        final float endY = (float) targetLoc[1] - activeCardOriginalLocation[1];
+//        rootLayout.addTestPt(new PointF(endX,endY));
+
+//        int[] currentLoc = new int[2];
+//        activeCard.getLocationOnScreen(currentLoc);
+//        final float startX = (float) currentLoc[0] - activeCardOriginalLocation[0];
+//        final float startY = (float) currentLoc[1] - activeCardOriginalLocation[1];
+
+        // Translation Correction from https://dannysu.com/2015/05/12/android-translate-and-scale/
+        final float w1 = (float) activeCard.getMeasuredWidth();
+        final float w2 = (float) viewTarget.getWidth();
+        final float adjX = w1 * (1 - (w2 / w1)) / 2;
+
+        final float h1 = (float) activeCard.getMeasuredHeight();
+        final float h2 = (float) viewTarget.getHeight();
+        final float adjY = h1 * (1 - (h2 / h1)) / 2;
+
+        final float endScaleX = viewTarget.getWidth() / (float) activeCard.getMeasuredWidth();
+        final float endScaleY = viewTarget.getHeight() / (float) activeCard.getMeasuredHeight();
+
+        // ObjectAnimators from https://stackoverflow.com/questions/26024555/
+        // because ViewPropertyAnimators are buggy
+        AnimatorSet animSet = new AnimatorSet();
+        animSet.setDuration(ANIM_DURATION_MILLIS);
+        ObjectAnimator animScaleX = ObjectAnimator.ofFloat(activeCard, "scaleX", endScaleX);
+        ObjectAnimator animScaleY = ObjectAnimator.ofFloat(activeCard, "scaleY", endScaleY);
+        ObjectAnimator animTransX = ObjectAnimator.ofFloat(activeCard, "X", endX - adjX);
+        ObjectAnimator animTransY = ObjectAnimator.ofFloat(activeCard, "Y", endY - adjY);
+        animTransY.addListener(new Animator.AnimatorListener() {
             @Override
-            public void run() {
-                mSpadesPresenter.playCard(activeCard.getCard());
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                //mSpadesPresenter.playCard(activeCard.getCard());
+                viewTarget.setImageResource(getResources().getIdentifier(Card.determineImageName(
+                        activeCard.getCard()),"drawable","ksmori.hu.ait.spades"));
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                performCancelAnimation();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
             }
         });
-        vpAnim.start();
+        animSet.playTogether(animScaleX,animScaleY,animTransX,animTransY); // lol
+        animSet.start();
     }
 }
