@@ -2,12 +2,20 @@ package ksmori.hu.ait.spades.view;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PointF;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import ksmori.hu.ait.spades.R;
 
@@ -17,12 +25,14 @@ public class SpadesGameRootLayout extends PercentRelativeLayout{
 
     private boolean mIsDragging;
     private CardImageView activeCard;
+    private List<PointF> testPts = new ArrayList<>();
 
 //    private float mTouchSlopPx;
 //    private static final int mTouchSlopDp = 50; //threshold value, in dp, above which to detect drag gesture
 
     public SpadesGameRootLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
+        this.setWillNotDraw(false);
     }
 
 //    @Override
@@ -107,4 +117,36 @@ public class SpadesGameRootLayout extends PercentRelativeLayout{
 //        }
 //        return 0;
 //    }
+
+
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        super.dispatchDraw(canvas);
+        fuckingDOIT(canvas);
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        fuckingDOIT(canvas);
+    }
+
+    private void fuckingDOIT(Canvas canvas) {
+        Paint paint = new Paint();
+        paint.setColor(Color.BLACK);
+        paint.setStyle(Paint.Style.FILL);
+        float radius = 10;
+        for(PointF p : testPts){
+            canvas.drawCircle(p.x,p.y,radius,paint);
+        }
+    }
+
+    public void addTestPt(PointF p){
+        testPts.add(p);
+        this.invalidate();
+    }
+
+    public void clearTestPts(){
+        testPts.clear();
+    }
 }

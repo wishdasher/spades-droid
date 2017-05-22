@@ -18,19 +18,20 @@ import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.IllformedLocaleException;
 import java.util.List;
 
 import ksmori.hu.ait.spades.R;
 import ksmori.hu.ait.spades.SpadesGameScreen;
 import ksmori.hu.ait.spades.model.Card;
-import ksmori.hu.ait.spades.presenter.CardPresenter;
+import ksmori.hu.ait.spades.presenter.CardsDisplay;
 import ksmori.hu.ait.spades.util.SpadesDebug;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class PlayerCardsFragment extends FragmentTagged
-        implements View.OnTouchListener, CardPresenter{
+        implements View.OnTouchListener, CardsDisplay{
 
     public static final String TAG = "PlayerCardsFragment";
     public static final String CARDS_KEY = "CARDS_KEY";
@@ -86,12 +87,11 @@ public class PlayerCardsFragment extends FragmentTagged
 
     private void attachListeners() {
         for (String row : rows) {
-            for (int i = 1; i <= 7; i++) {
-                ImageView iv = (ImageView) getView().findViewById(getResources()
+            for (int i = 1; i <= ROW_LENGTH; i++) {
+                CardImageView civ = (CardImageView) getView().findViewById(getResources()
                         .getIdentifier("iv_row_"+row+"_card"+i,"id","ksmori.hu.ait.spades"));
-                if(iv.getWidth()!=0){
-                    iv.setOnTouchListener(this);
-//                    iv.setOnTouchListener((View.OnTouchListener)getActivity());
+                if(civ.getCard()!=null){
+                    civ.setOnTouchListener(this);
                 }
             }
         }
@@ -100,18 +100,24 @@ public class PlayerCardsFragment extends FragmentTagged
     private void correctLayout() {
         for (String row : rows) {
             int widthInPixels = 0;
-            ImageView prev = null;
+            CardImageView prev = null;
             for (int i = 1; i <= 7; i++) {
-                ImageView iv = (ImageView) getView().findViewById(getResources()
+                CardImageView civ = (CardImageView) getView().findViewById(getResources()
                         .getIdentifier("iv_row_"+row+"_card"+i,"id","ksmori.hu.ait.spades"));
-                if(iv.getWidth()!=0 && prev!=null) {
+                if(civ.getCard()!=null && prev!=null) {
+                    civ.getLayoutParams().width=prev.getWidth();
                     ((ViewGroup.MarginLayoutParams) prev.getLayoutParams())
-                            .setMargins(0, 0, -iv.getWidth() / 2, 0);
+                            .setMargins(0, 0, -prev.getWidth() / 2, 0);
                     prev.requestLayout();
                     widthInPixels -= prev.getWidth() / 2;
+                } else if(civ.getCard()==null && prev!=null && prev.getCard()!=null){
+                    civ.getLayoutParams().width=0;
+                    ((ViewGroup.MarginLayoutParams) prev.getLayoutParams())
+                            .setMargins(0, 0, 0, 0);
+                    prev.requestLayout();
                 }
-                widthInPixels += iv.getWidth();
-                prev = iv;
+                widthInPixels += civ.getWidth();
+                prev = civ;
                 Log.d(TAG,"cards" + i + " width = "+widthInPixels);
             }
             LinearLayout layout = (LinearLayout) getView().findViewById(getResources()
@@ -122,6 +128,7 @@ public class PlayerCardsFragment extends FragmentTagged
     }
 
     private void loadContents(){
+        Collections.sort(playerCards);
         for (int i = 0; i < playerCards.size(); i++) {
             String cName = "iv_row_"+ rows[i/ROW_LENGTH] +"_card"+(i%ROW_LENGTH+1);
             CardImageView c = (CardImageView) getView().findViewById(getResources().getIdentifier(
@@ -129,14 +136,14 @@ public class PlayerCardsFragment extends FragmentTagged
             int resID = getResources().getIdentifier(
                     Card.determineImageName(playerCards.get(i)),"drawable","ksmori.hu.ait.spades");
             c.setImageResource(resID);
-            c.setTag(resID);
             c.setCard(playerCards.get(i));
         }
         for (int i = playerCards.size(); i < rows.length * ROW_LENGTH; i++) {
-            String ivName = "iv_row_"+ rows[i/ROW_LENGTH] +"_card"+(i%ROW_LENGTH+1);
-            ImageView iv = (ImageView) getView().findViewById(getResources().getIdentifier(
-                    ivName,"id", "ksmori.hu.ait.spades"));
-            iv.setImageDrawable(null);
+            String cName = "iv_row_"+ rows[i/ROW_LENGTH] +"_card"+(i%ROW_LENGTH+1);
+            CardImageView c = (CardImageView) getView().findViewById(getResources().getIdentifier(
+                    cName,"id", "ksmori.hu.ait.spades"));
+            c.setImageDrawable(null);
+            c.setCard(null);
         }
     }
 
@@ -155,7 +162,7 @@ public class PlayerCardsFragment extends FragmentTagged
                 case MotionEvent.ACTION_DOWN:
                     Log.d(DEBUG_TAG,"setting Screen Active Card");
                     mSpadesGameScreen.setActiveCard((CardImageView) v, event);
-                    removeCardFromHand(((CardImageView) v).getCard());
+                    removeCardFromHand(((CardImageView) v));
                     return true;
                 default:
                     break;
@@ -164,11 +171,14 @@ public class PlayerCardsFragment extends FragmentTagged
         return false;
     }
 
-    private void removeCardFromHand(Card c) {
-        int i = playerCards.indexOf(c);
+    private void removeCardFromHand(CardImageView c) {
+        int i = playerCards.indexOf(c.getCard());
+        c.setImageDrawable(null);
+        c.setCard(null);
         if(i >= 0) {
             cardToPlay = playerCards.remove(i);
             loadContents();
+            correctLayout();
         } else {
             throw new IllegalArgumentException("Attempting to remove unheld card");
         }
@@ -183,5 +193,6 @@ public class PlayerCardsFragment extends FragmentTagged
         }
         Collections.sort(playerCards);
         loadContents();
+        correctLayout();
     }
 }
