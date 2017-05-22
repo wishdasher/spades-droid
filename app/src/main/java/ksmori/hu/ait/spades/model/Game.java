@@ -7,10 +7,11 @@ import java.util.List;
 public class Game {
 
     public enum State {
-        WAITING, SETUP, READY, BIDDING, PLAY, END
+        WAITING, SETUP, READY, BIDDING, PLAY, RESET, END
     }
 
     @Exclude public static final int NUM_PLAYERS = 4;
+    @Exclude public static final int NUM_TRICKS = 13;
     @Exclude public static final String HOST_KEY = "hostPlayer";
     @Exclude public static final String NORTH_KEY = "north";
     @Exclude public static final String EAST_KEY = "east";

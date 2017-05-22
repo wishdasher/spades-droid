@@ -22,14 +22,11 @@ public class Player {
         }
     }
 
-    @Exclude
-    public static final String NORTH_KEY = "north";
-    @Exclude
-    public static final String EAST_KEY = "east";
-    @Exclude
-    public static final String SOUTH_KEY = "south";
-    @Exclude
-    public static final String WEST_KEY = "west";
+    @Exclude public static final String NORTH_KEY = "north";
+    @Exclude public static final String EAST_KEY = "east";
+    @Exclude public static final String SOUTH_KEY = "south";
+    @Exclude public static final String WEST_KEY = "west";
+    @Exclude public static final String LEFT_KEY = "left";
 
     private String name;
     private Bid bid;

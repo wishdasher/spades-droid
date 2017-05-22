@@ -8,12 +8,24 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ksmori.hu.ait.spades.model.Card;
+import ksmori.hu.ait.spades.model.Game;
+import ksmori.hu.ait.spades.model.Play;
 import ksmori.hu.ait.spades.model.Player;
+import ksmori.hu.ait.spades.model.Utils;
 import ksmori.hu.ait.spades.presenter.CardPresenter;
 import ksmori.hu.ait.spades.presenter.SpadesPresenter;
 import ksmori.hu.ait.spades.util.SpadesDebug;
@@ -31,7 +43,6 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     private View mGameView;
     private CardPresenter mCardPresenter;
     private SpadesGameRootLayout rootLayout;
-    private List<Card> playerCards;
 
     private CardImageView activeCard;
     private int[] activeCardOriginalLocation;
@@ -39,8 +50,13 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     private float dY;
     private int lastAction;
 
-    private boolean isHost;
-    private String position;
+    private String myName;
+    private String leftName;
+    private String myPosition;
+    private String gameID;
+    private boolean isHostPlayer;
+    private DatabaseReference databaseGame;
+    private Map<DatabaseReference, ValueEventListener> listenerMap;
 
 
     @Override
@@ -48,20 +64,44 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_spades_game);
 
+        myName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+        gameID = getIntent().getStringExtra(WaitingRoomActivity.GAME_ID_INTENT_KEY);
+        databaseGame = FirebaseDatabase.getInstance().getReference().child(StartActivity.GAMES_KEY).child(gameID);
+        isHostPlayer = getIntent().getBooleanExtra(WaitingRoomActivity.HOST_PLAYER_INTENT_KEY, false);
+
+        // FIND PLAYER TO THE LEFT'S NAME
+        DatabaseReference leftRef = databaseGame.child(myPosition).child(Player.LEFT_KEY);
+        leftRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                leftName = (String) dataSnapshot.getValue();
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        listenerMap = new HashMap<>();
+        setUpListeners();
+
         setupGameTableFragment();
-        playerCards = new ArrayList<>();
+
+        //TODO TEST CODE EVENTUALLY DELETE
+        List<Card> playerCards = new ArrayList<>();
         for (int i = Card.MIN_VALUE; i <= Card.MAX_VALUE; i++) {
             playerCards.add(new Card(i, Card.Suit.SPADE));
         }
         setupPlayerCardsFragment(playerCards);
-
-
 
         activeCard = (CardImageView) findViewById(R.id.iv_active_card);
         activeCard.setOnTouchListener(this);
         rootLayout = (SpadesGameRootLayout) findViewById(R.id.layout_root_game_activity);
         activeCard.bringToFront();
 
+        if (isHostPlayer) {
+            //TODO WILL EVENTUALLY BE BIDDING
+            databaseGame.child(Game.STATE_KEY).setValue(Game.State.PLAY);
+        }
     }
 
     @Override
@@ -70,6 +110,105 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
             activeCardOriginalLocation = new int[2];
             activeCard.getLocationOnScreen(activeCardOriginalLocation); // mutator method
         }
+    }
+
+    private void setUpListeners() {
+        // set up listeners for players
+        DatabaseReference stateRef = databaseGame.child(Game.STATE_KEY);
+        stateRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                switch (Game.State.valueOf((String) dataSnapshot.getValue())) {
+                    case BIDDING:
+                        break;
+                    case PLAY:
+                        break;
+                    case RESET:
+                        break;
+                    case END:
+                        break;
+                    //TODO IMPLEMENT
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        DatabaseReference nextPlayerRef = databaseGame.child(Game.NEXT_PLAYER_KEY);
+        nextPlayerRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String nextPlayer = (String) dataSnapshot.getValue();
+                if (nextPlayer.equals(myName)) {
+                    // IT IS MY TURN
+                    final int[] trickNumber = new int[1];
+                    DatabaseReference trickRef = databaseGame.child(Game.TRICK_NUMBER_KEY);
+                    trickRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            trickNumber[0] = (Integer) dataSnapshot.getValue();
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                    if (trickNumber[0] > Game.NUM_TRICKS) {
+                        // GAME HAS ENDED
+                        databaseGame.child(Game.STATE_KEY).setValue(Game.State.RESET);
+                    } else {
+                        // CONTINUE
+                        Play myPlay = playCard();
+                        DatabaseReference playsRef = databaseGame.child(Game.PLAYS_KEY);
+                        final List<Play> plays = new ArrayList<Play>();
+                        playsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                                    Play play = snapshot.getValue(Play.class);
+                                    plays.add(play);
+                                }
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                        plays.add(myPlay);
+                        if (plays.size() == Game.NUM_PLAYERS) {
+                            // TRICK IS OVER
+                            String winningPlayer = Utils.getTrickWinner(plays);
+                            databaseGame.child(Game.LAST_PLAYER_KEY).setValue(myName);
+                            databaseGame.child(Game.NEXT_PLAYER_KEY).setValue(winningPlayer);
+                            databaseGame.child(Game.PLAYS_KEY).setValue(new ArrayList<>());
+                            databaseGame.child(Game.TRICK_NUMBER_KEY).setValue(trickNumber[0] + 1);
+                        } else {
+                            // TRICK CONTINUES
+                            databaseGame.child(Game.NEXT_PLAYER_KEY).setValue(leftName);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void setUpNextGame() {
+        //TODO called from reset if the player is host
+    }
+
+    private Play playCard() {
+        return null;
+        //TODO implmeent for David
     }
 
     public void setupGameTableFragment() {

@@ -40,7 +40,6 @@ public class WaitingRoomActivity extends AppCompatActivity {
     private String playerKeyValue;
 
     private DatabaseReference database;
-    private DatabaseReference gamePlayersRef;
     private Map<DatabaseReference, ValueEventListener> listenerMap;
 
     @Override
@@ -56,7 +55,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
         playerKeyValue = getIntent().getStringExtra(PLAYER_MEMBER_INTENT_KEY);
         Toast.makeText(this, gameID, Toast.LENGTH_SHORT).show();
 
-        gamePlayersRef = database.child(StartActivity.GAMES_KEY)
+        DatabaseReference gamePlayersRef = database.child(StartActivity.GAMES_KEY)
                 .child(gameID)
                 .child(StartActivity.PLAYERS_KEY);
         ValueEventListener gamePlayersListener = new ValueEventListener() {
@@ -80,7 +79,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
         ValueEventListener statesListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                switch (Game.State.valueOf((String) dataSnapshot.getValue())) {
+                    switch (Game.State.valueOf((String) dataSnapshot.getValue())) {
                     case READY:
                         removeListeners();
                         //TODO START GAME
