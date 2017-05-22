@@ -1,6 +1,7 @@
 package ksmori.hu.ait.spades;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -81,7 +82,12 @@ public class WaitingRoomActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 switch (Game.State.valueOf((String) dataSnapshot.getValue())) {
                     case READY:
+                        removeListeners();
                         //TODO START GAME
+                        Intent intent = new Intent(WaitingRoomActivity.this, SpadesGameActivity.class);
+                        intent.putExtra(GAME_ID_INTENT_KEY, gameID);
+                        intent.putExtra(HOST_PLAYER_INTENT_KEY, isHostPlayer); //TODO needed?
+                        startActivity(intent);
                 }
             }
 
@@ -234,6 +240,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
         Toast.makeText(this, "Setup done!", Toast.LENGTH_SHORT).show();
         database.child(StartActivity.GAMES_KEY).child(gameID)
                 .child(Game.STATE_KEY).setValue(Game.State.READY);
+        //TODO store mapping of players to position
 
     }
 }
