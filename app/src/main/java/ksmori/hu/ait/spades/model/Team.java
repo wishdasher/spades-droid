@@ -5,8 +5,8 @@ import com.google.firebase.database.Exclude;
 
 public class Team {
 
-    private String playerAKey;
-    private String playerBKey;
+    private String playerA;
+    private String playerB;
 
     private int score;
     private int bags;
@@ -14,27 +14,27 @@ public class Team {
     public Team() {
     }
 
-    public Team(String playerAKey, String playerBKey, int score, int bags) {
-        this.playerAKey = playerAKey;
-        this.playerBKey = playerBKey;
+    public Team(String playerA, String playerB, int score, int bags) {
+        this.playerA = playerA;
+        this.playerB = playerB;
         this.score = score;
         this.bags = bags;
     }
 
-    public String getPlayerAKey() {
-        return playerAKey;
+    public String getPlayerA() {
+        return playerA;
     }
 
-    public void setPlayerAKey(String playerAKey) {
-        this.playerAKey = playerAKey;
+    public void setPlayerA(String playerA) {
+        this.playerA = playerA;
     }
 
-    public String getPlayerBKey() {
-        return playerBKey;
+    public String getPlayerB() {
+        return playerB;
     }
 
-    public void setPlayerBKey(String playerBKey) {
-        this.playerBKey = playerBKey;
+    public void setPlayerB(String playerB) {
+        this.playerB = playerB;
     }
 
     public int getScore() {
@@ -86,7 +86,7 @@ public class Team {
 
     @Exclude
     public String getName() {
-        return playerAKey + "&" + playerBKey;
+        return playerA + "&" + playerB;
     }
 
 }

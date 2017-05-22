@@ -4,8 +4,8 @@ import java.util.List;
 
 public class GameRecord {
 
-    private Team teamNS;
-    private Team teamEW;
+    private String teamNS;
+    private String teamEW;
 
     private List<Integer> scoresNS;
     private List<Integer> scoresEW;
@@ -13,26 +13,26 @@ public class GameRecord {
     public GameRecord() {
     }
 
-    public GameRecord(Team teamNS, Team teamEW, List<Integer> scoresNS, List<Integer> scoresEW) {
+    public GameRecord(String teamNS, String teamEW, List<Integer> scoresNS, List<Integer> scoresEW) {
         this.teamNS = teamNS;
         this.teamEW = teamEW;
         this.scoresNS = scoresNS;
         this.scoresEW = scoresEW;
     }
 
-    public Team getTeamNS() {
+    public String getTeamNS() {
         return teamNS;
     }
 
-    public void setTeamNS(Team teamNS) {
+    public void setTeamNS(String teamNS) {
         this.teamNS = teamNS;
     }
 
-    public Team getTeamEW() {
+    public String getTeamEW() {
         return teamEW;
     }
 
-    public void setTeamEW(Team teamEW) {
+    public void setTeamEW(String teamEW) {
         this.teamEW = teamEW;
     }
 

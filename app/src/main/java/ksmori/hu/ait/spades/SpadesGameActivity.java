@@ -25,8 +25,8 @@ import ksmori.hu.ait.spades.view.SpadesGameRootLayout;
 public class SpadesGameActivity extends AppCompatActivity implements SpadesGameScreen,
         View.OnTouchListener{
 
-    public static final String STATE_KEY = "state";
     private static final String DEBUG_TAG = "SpadesGameActivity";
+
     private SpadesPresenter mSpadesPresenter;
     private View mGameView;
     private CardPresenter mCardPresenter;

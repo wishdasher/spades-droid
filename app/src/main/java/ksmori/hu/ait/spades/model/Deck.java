@@ -31,7 +31,7 @@ public class Deck {
         checkRep();
     }
 
-    List<List<Card>> deal(int numPlayers) {
+    public List<List<Card>> deal(int numPlayers) {
         List<List<Card>> hands = new ArrayList<>();
         int cardsEach = deck.size() / numPlayers;
         for (int p = 0; p < numPlayers; p++) {

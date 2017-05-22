@@ -35,22 +35,22 @@ public class Player {
     private Bid bid;
     private List<Card> hand;
     private int tricks;
-    private String leftKey;
-    private String partnerKey;
-    private String rightKey;
+    private String left;
+    private String partner;
+    private String right;
 
     public Player() {
 
     }
 
-    public Player(String name, Bid bid, List<Card> hand, int tricks, String leftKey, String partnerKey, String rightKey) {
+    public Player(String name, Bid bid, List<Card> hand, int tricks, String left, String partner, String right) {
         this.name = name;
         this.bid = bid;
         this.hand = hand;
         this.tricks = tricks;
-        this.leftKey = leftKey;
-        this.partnerKey = partnerKey;
-        this.rightKey = rightKey;
+        this.left = left;
+        this.partner = partner;
+        this.right = right;
     }
 
     public String getName() {
@@ -111,28 +111,27 @@ public class Player {
         this.tricks = tricks;
     }
 
-    public String getLeftKey() {
-        return leftKey;
+    public String getLeft() {
+        return left;
     }
 
-    public void setLeftKey(String leftKey) {
-        this.leftKey = leftKey;
+    public void setLeft(String left) {
+        this.left = left;
     }
 
-    public String getPartnerKey() {
-        return partnerKey;
+    public String getPartner() {
+        return partner;
     }
 
-    public void setPartnerKey(String partnerKey) {
-        this.partnerKey = partnerKey;
+    public void setPartner(String partner) {
+        this.partner = partner;
     }
 
-    public String getRightKey() {
-        return rightKey;
+    public String getRight() {
+        return right;
     }
 
-    public void setRightKey(String rightKey) {
-        this.rightKey = rightKey;
+    public void setRight(String right) {
+        this.right = right;
     }
-
 }
