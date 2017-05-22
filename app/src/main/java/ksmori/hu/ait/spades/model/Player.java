@@ -28,6 +28,7 @@ public class Player {
     @Exclude public static final String WEST_KEY = "west";
     @Exclude public static final String LEFT_KEY = "left";
     @Exclude public static final String TRICKS_KEY = "tricks";
+    @Exclude public static final String CARD_KEY = "card";
 
     private String name;
     private Bid bid;
@@ -36,6 +37,15 @@ public class Player {
     private String left;
     private String partner;
     private String right;
+    private String card;
+
+    public String getCard() {
+        return card;
+    }
+
+    public void setCard(String card) {
+        this.card = card;
+    }
 
     public Player() {
 

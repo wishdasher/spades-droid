@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -64,7 +65,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
     private String myName;
     private String leftName;
-    private String myPosition = "north";
+    private String myPosition = "south";
     private String gameID;
     private boolean isHostPlayer;
     private DatabaseReference databaseGame;
@@ -223,6 +224,24 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         rootLayout = (SpadesGameRootLayout) findViewById(R.id.layout_root_game_activity);
         activeCard.bringToFront();
 
+        DatabaseReference westPlayerRef = databaseGame.child(Player.WEST_KEY).child(Player.CARD_KEY);
+        westPlayerRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String card = dataSnapshot.getValue(String.class);
+                ViewGroup left = (ViewGroup) mGameFragment.getView().findViewById(R.id.player_box_left);
+                ImageView iv = (ImageView) left.findViewById(R.id.iv_player_card_left);
+                int resID = getResources().getIdentifier(card,
+                        "drawable","ksmori.hu.ait.spades");
+                iv.setImageResource(resID);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
 
     }
 
@@ -235,6 +254,23 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     }
 
     private void setUpListeners() {
+        DatabaseReference westPlayerRef = databaseGame.child(Player.WEST_KEY).child(Player.CARD_KEY);
+        westPlayerRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String card = dataSnapshot.getValue(String.class);
+                ViewGroup left = (ViewGroup) mGameFragment.getView().findViewById(R.id.player_box_left);
+                ImageView iv = (ImageView) left.findViewById(R.id.iv_player_card_left);
+                int resID = getResources().getIdentifier(card,
+                        "drawable","ksmori.hu.ait.spades");
+                iv.setImageResource(resID);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
         // TODO set up listeners for players attributes
         DatabaseReference spadesBrokenRef = databaseGame.child(Game.SPADES_BROKEN_KEY);
         spadesBrokenRef.addValueEventListener(new ValueEventListener() {
