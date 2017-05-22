@@ -16,6 +16,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,7 +126,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
         TextView tvPlayers = (TextView) findViewById(R.id.tv_all_players);
         tvPlayers.setText(players);
 
-        if (numPlayers == Game.NUM_PLAYERS && isHostPlayer) {
+        if (isHostPlayer) {
             new AlertDialog.Builder(this)
                     .setTitle("Start game")
                     .setMessage("There are four players, start game?")
@@ -160,8 +161,9 @@ public class WaitingRoomActivity extends AppCompatActivity {
             playersList.add(child.getValue(String.class));
         }
 
+        playersList = Arrays.asList("sophie", "david", "scrub", "sun");
         Deck deck = new Deck();
-        List<List<Card>> hands = deck.deal(Game.NUM_PLAYERS);
+        List<ArrayList<Card>> hands = deck.deal(Game.NUM_PLAYERS);
         Map<String, String> mapNameToPosition = new HashMap<>();
 
         Player north = new Player(
@@ -242,11 +244,6 @@ public class WaitingRoomActivity extends AppCompatActivity {
         database.child(StartActivity.GAMES_KEY).child(gameID)
                 .child(Game.MAP_PLAY2POS_KEY).setValue(mapNameToPosition);
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
         Toast.makeText(this, "Setup done!", Toast.LENGTH_SHORT).show();
         database.child(StartActivity.GAMES_KEY).child(gameID)

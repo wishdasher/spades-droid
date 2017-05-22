@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import ksmori.hu.ait.spades.model.Card;
+import ksmori.hu.ait.spades.model.Deck;
 import ksmori.hu.ait.spades.model.Game;
 import ksmori.hu.ait.spades.model.Play;
 import ksmori.hu.ait.spades.model.Player;
@@ -75,45 +76,43 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         spadesBroken = false;
         mapPlayerToPos = new HashMap<>();
 
-        DatabaseReference mapRef = databaseGame.child(Game.MAP_PLAY2POS_KEY);
-        mapRef.keepSynced(true);
-        mapRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    mapPlayerToPos.put(child.getKey(), child.getValue(String.class));
-                }
-                myPosition = mapPlayerToPos.get(myName);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        // FIND PLAYER TO THE LEFT'S NAME
-        DatabaseReference leftRef = databaseGame.child(myPosition).child(Player.LEFT_KEY);
-        leftRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                leftName = dataSnapshot.getValue(String.class);
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        listenerMap = new HashMap<>();
-        setUpListeners();
+//        DatabaseReference mapRef = databaseGame.child(Game.MAP_PLAY2POS_KEY);
+//        mapRef.keepSynced(true);
+//        mapRef.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for (DataSnapshot child : dataSnapshot.getChildren()) {
+//                    mapPlayerToPos.put(child.getKey(), child.getValue(String.class));
+//                }
+//                myPosition = mapPlayerToPos.get(myName);
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+//        // FIND PLAYER TO THE LEFT'S NAME
+//        DatabaseReference leftRef = databaseGame.child(myPosition).child(Player.LEFT_KEY);
+//        leftRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                leftName = dataSnapshot.getValue(String.class);
+//            }
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+//        listenerMap = new HashMap<>();
+//        setUpListeners();
 
         setupGameTableFragment();
 
         //TODO TEST CODE EVENTUALLY DELETE
-        List<Card> playerCards = new ArrayList<>();
-        for (int i = Card.MIN_VALUE; i <= Card.MAX_VALUE; i++) {
-            playerCards.add(new Card(i, Card.Suit.SPADE));
-        }
-        setupPlayerCardsFragment(playerCards);
+        Deck deck = new Deck();
+        List<ArrayList<Card>> hands = deck.deal(Game.NUM_PLAYERS);
+        setupPlayerCardsFragment(hands.get(0));
 
         activeCard = (CardImageView) findViewById(R.id.iv_active_card);
         activeCard.setOnTouchListener(this);
