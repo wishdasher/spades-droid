@@ -11,7 +11,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -434,6 +436,15 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
     public void setupGameTableFragment() {
         GameTableFragment gtf = new GameTableFragment();
+        String[] positions = {myPosition,Player.getLeftDir(myPosition),
+                Player.getPartnerDir(myPosition),Player.getRightDir(myPosition)};
+        for (String pos : positions) {
+            ViewGroup box = (ViewGroup) gtf.getView().findViewById(getResources().getIdentifier(
+                    "player_box_"+pos,"id","ksmori.hu.ait.spades"));
+            ImageView iv = (ImageView) box.findViewById(getResources().getIdentifier(
+                    "iv_player_card_"+pos,"id","ksmori.hu.ait.spades"));
+            //TODO have a listener on some property update ImageView
+        }
 
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
