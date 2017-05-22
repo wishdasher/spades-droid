@@ -165,6 +165,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
 
         Deck deck = new Deck();
         List<List<Card>> hands = deck.deal(Game.NUM_PLAYERS);
+        Map<String, String> mapNameToPosition = new HashMap<>();
 
         Player north = new Player(
                 playersList.get(0),
@@ -175,6 +176,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
                 playersList.get(2),
                 playersList.get(3)
         );
+        mapNameToPosition.put(playersList.get(0), Player.NORTH_KEY);
         Player east = new Player(
                 playersList.get(1),
                 null,
@@ -184,6 +186,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
                 playersList.get(3),
                 playersList.get(0)
         );
+        mapNameToPosition.put(playersList.get(1), Player.EAST_KEY);
         Player south = new Player(
                 playersList.get(2),
                 null,
@@ -193,6 +196,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
                 playersList.get(0),
                 playersList.get(1)
         );
+        mapNameToPosition.put(playersList.get(2), Player.SOUTH_KEY);
         Player west = new Player(
                 playersList.get(3),
                 null,
@@ -202,6 +206,8 @@ public class WaitingRoomActivity extends AppCompatActivity {
                 playersList.get(1),
                 playersList.get(2)
         );
+        mapNameToPosition.put(playersList.get(3), Player.WEST_KEY);
+
         Team teamNS = new Team(north.getName(), south.getName(), 0, 0);
         Team teamEW = new Team(east.getName(), west.getName(), 0, 0);
 
@@ -239,6 +245,8 @@ public class WaitingRoomActivity extends AppCompatActivity {
         Toast.makeText(this, "Setup done!", Toast.LENGTH_SHORT).show();
         database.child(StartActivity.GAMES_KEY).child(gameID)
                 .child(Game.STATE_KEY).setValue(Game.State.READY);
+        database.child(StartActivity.GAMES_KEY).child(gameID)
+                .child(Game.MAP_PLAY2POS_KEY).setValue(mapNameToPosition);
         //TODO store mapping of players to position
 
     }

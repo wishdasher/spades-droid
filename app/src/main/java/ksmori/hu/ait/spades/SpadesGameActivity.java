@@ -69,6 +69,19 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         databaseGame = FirebaseDatabase.getInstance().getReference().child(StartActivity.GAMES_KEY).child(gameID);
         isHostPlayer = getIntent().getBooleanExtra(WaitingRoomActivity.HOST_PLAYER_INTENT_KEY, false);
 
+        DatabaseReference mapRef = databaseGame.child(Game.MAP_PLAY2POS_KEY);
+        mapRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Map<String, String> map = dataSnapshot.getValue(HashMap.class);
+                myPosition = map.get(myName);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
         // FIND PLAYER TO THE LEFT'S NAME
         DatabaseReference leftRef = databaseGame.child(myPosition).child(Player.LEFT_KEY);
         leftRef.addListenerForSingleValueEvent(new ValueEventListener() {

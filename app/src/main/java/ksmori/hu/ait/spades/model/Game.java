@@ -12,6 +12,7 @@ public class Game {
 
     @Exclude public static final int NUM_PLAYERS = 4;
     @Exclude public static final int NUM_TRICKS = 13;
+    @Exclude public static final String MAP_PLAY2POS_KEY = "mapPlayerToPos";
     @Exclude public static final String HOST_KEY = "hostPlayer";
     @Exclude public static final String NORTH_KEY = "north";
     @Exclude public static final String EAST_KEY = "east";
