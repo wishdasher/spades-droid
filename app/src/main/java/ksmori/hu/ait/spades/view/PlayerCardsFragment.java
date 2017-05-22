@@ -1,35 +1,31 @@
 package ksmori.hu.ait.spades.view;
 
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.HorizontalScrollView;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.IllformedLocaleException;
 import java.util.List;
 
 import ksmori.hu.ait.spades.R;
-import ksmori.hu.ait.spades.SpadesGameActivity;
 import ksmori.hu.ait.spades.SpadesGameScreen;
 import ksmori.hu.ait.spades.model.Card;
 import ksmori.hu.ait.spades.presenter.CardsDisplay;
 import ksmori.hu.ait.spades.util.SpadesDebug;
+import android.support.annotation.Nullable;
 
 /**
- * A simple {@link Fragment} subclass.
+ * A {@link Fragment} attached to a SpadesGameScreen
+ * Displays a player's hand of cards; supports playing
+ * cards by drag-and-drop into a sibling GameTable
  */
 public class PlayerCardsFragment extends FragmentTagged
         implements View.OnTouchListener, CardsDisplay{
@@ -86,17 +82,49 @@ public class PlayerCardsFragment extends FragmentTagged
         });
     }
 
-    private void attachListeners() {
+    public void attachListeners() {
+        attachListeners(playerCards);
+    }
+
+    public void attachListeners(List<Card> playableCards) {
         for (String row : rows) {
             for (int i = 1; i <= ROW_LENGTH; i++) {
                 CardImageView civ = (CardImageView) getView().findViewById(getResources()
                         .getIdentifier("iv_row_"+row+"_card"+i,"id","ksmori.hu.ait.spades"));
-                if(civ.getCard()!=null){
+                if(civ.getCard()!=null && playableCards.contains(civ.getCard())){
                     civ.setOnTouchListener(this);
+                } else {
+                    civ.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View v, MotionEvent event) {
+                            return false;
+                        }
+                    });
                 }
             }
         }
         getView().setOnTouchListener((View.OnTouchListener) mSpadesGameScreen);
+    }
+
+    public void detachListeners(){
+        for (String row : rows) {
+            for (int i = 1; i <= ROW_LENGTH; i++) {
+                CardImageView civ = (CardImageView) getView().findViewById(getResources()
+                        .getIdentifier("iv_row_"+row+"_card"+i,"id","ksmori.hu.ait.spades"));
+                civ.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        return false;
+                    }
+                });
+            }
+        }
+        getView().setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return false;
+            }
+        });
     }
 
     private void correctLayout() {

@@ -46,7 +46,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         View.OnTouchListener{
 
     private static final String SPADES_GAME_ACTIVITY_TAG = "SpadesGameActivityTag";
-    private static final long ANIM_DURATION_MILLIS = 750;
+    private static final long ANIM_BASE_DURATION_MILLIS = 250;
     private static final long ANIM_VELOCITY_DP_PER_MILLI = 2;
     private static final float PLAY_AREA_MIN_WIDTH_PERCENT = 0.25f;
     private static final float PLAY_AREA_MAX_WIDTH_PERCENT = 0.75f;
@@ -101,6 +101,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     private Player south;
     private Player west;
     private Player mePlayer;
+    private Card myCardToPlay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,13 +120,14 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
         setUpListeners();
 
+        // 1. Get Players
         DatabaseReference mapRef = databaseGame.child(Game.PLAYERS_KEY);
         mapRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                     mapPlayerToPos.put(child.getKey(), child.getValue(String.class));
-                }
+                } // 2. Get mapping between player names and positions
                 myPosition = mapPlayerToPos.get(myName);
                 DatabaseReference leftRef = databaseGame.child(myPosition).child(Player.LEFT_KEY);
                 leftRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -139,14 +141,14 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                                     myHand.add(child.getValue(Card.class));
-                                }
+                                } // 4. Once cards are obtained, show fragments
                                 setupGameTableFragment();
                                 setupPlayerCardsFragment();
 
                                 mSpadesPresenter = new SpadesPresenter(gameID, isHostPlayer);
 
                                 if (isHostPlayer) {
-                                    //EVENTUALLY BE BIDDING
+                                    // EVENTUALLY BE BIDDING
                                     databaseGame.child(GameVariable.KEY).child(GameVariable.STATE_KEY).setValue(Game.State.PLAY);
                                 }
                             }
@@ -168,9 +170,8 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
             }
         });
 
-    }
 
-    private void continueSetUp(List<Card> myHand) {
+
     }
 
     @Override
@@ -274,10 +275,10 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
                     case GameVariable.NEXT_PLAYER_KEY:
                         nextPlayer = dataSnapshot.getValue(String.class);
                         if (nextPlayer.equals(myName)) {
-                            //TODO enable UI stuff
+                            enablePlayUI();
                             makeMove();
                         } else {
-                            //TODO disable UI stuff whatever
+                            disablePlayUI();
                         }
                         break;
 
@@ -300,6 +301,14 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
             }
         });
 
+    }
+
+    private void enablePlayUI() {
+        mCardsDisplay.attachListeners(Utils.getPlayableHand(myHand, currentSuit, spadesBroken));
+    }
+
+    private void disablePlayUI(){
+        mCardsDisplay.detachListeners();
     }
 
     private void setUpPlayListener() {
@@ -379,9 +388,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     }
 
     private Play playCard() {
-        List<Card> playableCards = Utils.getPlayableHand(myHand, currentSuit, spadesBroken);
-        //TODO return the card chosen, along with username
-        return null;
+        return new Play(myName,myCardToPlay);
     }
 
     public void setupGameTableFragment() {
@@ -555,7 +562,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         float vel = ANIM_VELOCITY_DP_PER_MILLI /(float) (getResources().getDisplayMetrics().densityDpi/160);
         double dist = Math.sqrt((activeCard.getX() - endX + adjX)*(activeCard.getX() - endX + adjX)
                         +(activeCard.getY() - endY + adjY)*(activeCard.getY() - endY + adjY));
-        animSet.setDuration(Math.round(dist / vel)+250);
+        animSet.setDuration(Math.round(dist / vel)+ANIM_BASE_DURATION_MILLIS);
         ObjectAnimator animScaleX = ObjectAnimator.ofFloat(activeCard, "scaleX", 1f/CARD_SELECT_SCALE_FACTOR);
         ObjectAnimator animScaleY = ObjectAnimator.ofFloat(activeCard, "scaleY", 1f/CARD_SELECT_SCALE_FACTOR);
         ObjectAnimator animTransX = ObjectAnimator.ofFloat(activeCard, "X", endX - adjX);
@@ -617,7 +624,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         float vel = ANIM_VELOCITY_DP_PER_MILLI /(float) (getResources().getDisplayMetrics().densityDpi/160);
         double dist = Math.sqrt((activeCard.getX() - endX + adjX)*(activeCard.getX() - endX + adjX)
                 +(activeCard.getY() - endY + adjY)*(activeCard.getY() - endY + adjY));
-        animSet.setDuration(Math.round(dist / vel));
+        animSet.setDuration(Math.round(dist / vel)+ANIM_BASE_DURATION_MILLIS);
         ObjectAnimator animScaleX = ObjectAnimator.ofFloat(activeCard, "scaleX", w2/w1);
         ObjectAnimator animScaleY = ObjectAnimator.ofFloat(activeCard, "scaleY", h2/h1);
         ObjectAnimator animTransX = ObjectAnimator.ofFloat(activeCard, "X", endX - adjX);
@@ -630,7 +637,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                //mSpadesPresenter.playCard(activeCard.getCard());
+                myCardToPlay = activeCard.getCard();
                 viewTarget.setImageResource(getResources().getIdentifier(Card.determineImageName(
                         activeCard.getCard()),"drawable","ksmori.hu.ait.spades"));
                 mCardsDisplay.removeSelectedCard();
