@@ -340,6 +340,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         } else {
             Play myPlay = playCard();
             plays.add(myPlay);
+            databaseGame.child(myPosition).child(Player.CARD_KEY).setValue(myPlay.getCard());
 
             if (plays.size() == Game.NUM_PLAYERS) {
                 // TRICK IS OVER
@@ -354,6 +355,10 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
                 databaseGame.child(winningPos)
                         .child(Player.TRICKS_KEY).setValue(mapPositionToTricks.get(winningPos) + 1);
                 databaseGame.child(Game.PLAYS_KEY).setValue(new ArrayList<>());
+                databaseGame.child(Game.NORTH_KEY).child(Player.CARD_KEY).setValue(null);
+                databaseGame.child(Game.EAST_KEY).child(Player.CARD_KEY).setValue(null);
+                databaseGame.child(Game.SOUTH_KEY).child(Player.CARD_KEY).setValue(null);
+                databaseGame.child(Game.WEST_KEY).child(Player.CARD_KEY).setValue(null);
                 databaseGame.child(GameVariable.KEY).child(GameVariable.CURRENT_SUIT_KEY).setValue(null);
                 databaseGame.child(GameVariable.KEY).child(GameVariable.TRICK_NUMBER_KEY).setValue(trickNumber + 1);
             } else {
