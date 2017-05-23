@@ -99,7 +99,7 @@ public class Card implements Comparable, Serializable {
         }
         String strSuit = card.getSuitValue().name().toLowerCase();
         String res = "card_" + strTitle + "_of_" + strSuit + "s";
-//        return Resources.getSystem().getIdentifier(res, "drawable", "ksmori.hu.ait.spades");
+//        return getResources().getIdentifier(res, "drawable", "ksmori.hu.ait.spades");
         return res;
     }
 

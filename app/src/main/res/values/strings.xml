@@ -7,5 +7,6 @@
     <string name="title_activity_waiting">Waiting Room</string>
     <string name="title_activity_login">Login</string>
     <string name="title_activity_join_game">JoinGameActivity</string>
+    <string name="current_label">Current players in the room:</string>
 
 </resources>

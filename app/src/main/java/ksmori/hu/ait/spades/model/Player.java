@@ -28,7 +28,9 @@ public class Player {
     @Exclude public static final String WEST_KEY = "west";
     @Exclude public static final String LEFT_KEY = "left";
     @Exclude public static final String TRICKS_KEY = "tricks";
+
     @Exclude public static final String HAND_KEY = "hand";
+    @Exclude public static final String CARD_KEY = "played";
 
     @Exclude private static final List<String> dirOrder = Arrays.asList(NORTH_KEY, EAST_KEY, SOUTH_KEY, WEST_KEY);
     private String name;
@@ -38,6 +40,7 @@ public class Player {
     private String left;
     private String partner;
     private String right;
+
     private Card played;
 
     public Player() {

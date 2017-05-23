@@ -167,6 +167,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
             playersList.add(child.getKey());
         }
 
+        //playersList = Arrays.asList("sophie", "david", "scrub", "sun");
         Deck deck = new Deck();
         List<ArrayList<Card>> hands = deck.deal(Game.NUM_PLAYERS);
 

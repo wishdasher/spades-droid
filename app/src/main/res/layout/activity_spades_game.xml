@@ -49,12 +49,10 @@
 
     <ksmori.hu.ait.spades.view.CardImageView
         android:id="@+id/iv_active_card"
-        android:layout_width="wrap_content"
-        android:layout_height="200dp"
-        android:src="@drawable/card_king_of_hearts"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:background="#000000"
         android:adjustViewBounds="true"
         android:scaleType="centerInside"/>
 
