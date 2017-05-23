@@ -12,6 +12,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -26,6 +27,7 @@ import java.util.Map;
 
 import ksmori.hu.ait.spades.model.Card;
 import ksmori.hu.ait.spades.model.Game;
+import ksmori.hu.ait.spades.model.GameVariable;
 import ksmori.hu.ait.spades.model.Play;
 import ksmori.hu.ait.spades.model.Player;
 import ksmori.hu.ait.spades.model.Utils;
@@ -53,16 +55,33 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     private float dY;
     private int lastAction;
 
+    //From Intent
     private String myName;
-    private String leftName;
-    private String myPosition = "north";
     private String gameID;
     private boolean isHostPlayer;
+
+    //Game variables - static
+    private String myPosition;
+    private String leftName;
+    private Map<String, String> mapPlayerToPos = new HashMap<>();
+
+    //Game variables - dynamic
+    private Game.State gameState;
+    private int roundNumber;
+    private int trickNumber;
+    private boolean spadesBroken = false;
+    private Card.Suit currentSuit;
+    private String lastPlayer;
+    private String nextPlayer;
+
+    private Map<String, Integer> mapPositionToTricks = new HashMap<>();
+
+    private List<Card> hand;
+    private List<Play> plays;
+
+    //Utils
     private DatabaseReference databaseGame;
     private Map<DatabaseReference, ValueEventListener> listenerMap = new HashMap<>();
-    private boolean spadesBroken = false;
-    private Map<String, String> mapPlayerToPos = new HashMap<>();
-    private Map<String, Integer> mapPositionToTricks = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,8 +93,10 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         databaseGame = FirebaseDatabase.getInstance().getReference().child(StartActivity.GAMES_KEY).child(gameID);
         isHostPlayer = getIntent().getBooleanExtra(WaitingRoomActivity.HOST_PLAYER_INTENT_KEY, false);
 
-        DatabaseReference mapRef = databaseGame.child(Game.MAP_PLAY2POS_KEY);
-        mapRef.keepSynced(true);
+        final List<Card> myHand = new ArrayList<>();
+
+
+        DatabaseReference mapRef = databaseGame.child(Game.PLAYERS_KEY);
         mapRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -83,6 +104,34 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
                     mapPlayerToPos.put(child.getKey(), child.getValue(String.class));
                 }
                 myPosition = mapPlayerToPos.get(myName);
+                DatabaseReference leftRef = databaseGame.child(myPosition).child(Player.LEFT_KEY);
+                leftRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        leftName = dataSnapshot.getValue(String.class);
+                        // GET INITIAL CARDS
+                        DatabaseReference cardsRef = databaseGame.child(myPosition).child(Player.HAND_KEY);
+                        cardsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                                    myHand.add(child.getValue(Card.class));
+                                }
+                                continueSetUp(myHand);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
 
             @Override
@@ -90,38 +139,14 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
             }
         });
-        // FIND PLAYER TO THE LEFT'S NAME
-        DatabaseReference leftRef = databaseGame.child(myPosition).child(Player.LEFT_KEY);
-        leftRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                leftName = dataSnapshot.getValue(String.class);
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
-        final List<Card> myHand = new ArrayList<>();
-        // GET INITIAL CARDS
-        DatabaseReference cardsRef = databaseGame.child(myPosition).child(Player.HAND_KEY);
-        cardsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    myHand.add(child.getValue(Card.class));
-                }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
+    }
+
+    private void continueSetUp(List<Card> myHand) {
         setUpListeners();
-
         setupGameTableFragment();
-
         setupPlayerCardsFragment(myHand);
 
         activeCard = (CardImageView) findViewById(R.id.iv_active_card);
@@ -133,9 +158,8 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
         if (isHostPlayer) {
             //EVENTUALLY BE BIDDING
-            databaseGame.child(Game.STATE_KEY).setValue(Game.State.PLAY);
+            databaseGame.child(GameVariable.KEY).child(GameVariable.STATE_KEY).setValue(Game.State.PLAY);
         }
-
     }
 
     @Override
@@ -147,6 +171,12 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     }
 
     private void setUpListeners() {
+        setUpTrickValueListeners();
+        setUpGameVariableListeners();
+        setUpPlayListener();
+    }
+
+    private void setUpTrickValueListeners() {
         DatabaseReference northTricksRef = databaseGame.child(Player.NORTH_KEY).child(Player.TRICKS_KEY);
         northTricksRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -195,104 +225,62 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
             }
         });
-        DatabaseReference spadesBrokenRef = databaseGame.child(Game.SPADES_BROKEN_KEY);
-        spadesBrokenRef.addValueEventListener(new ValueEventListener() {
+    }
+
+    private void setUpGameVariableListeners() {
+        databaseGame.child(GameVariable.KEY).addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                spadesBroken = dataSnapshot.getValue(Boolean.class);
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                String key = dataSnapshot.getKey();
+                switch (key) {
+                    case GameVariable.CURRENT_SUIT_KEY:
+                        currentSuit = Card.Suit.valueOf(dataSnapshot.getValue(String.class));
+                }
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        DatabaseReference stateRef = databaseGame.child(Game.STATE_KEY);
-        stateRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                switch (Game.State.valueOf(dataSnapshot.getValue(String.class))) {
-                    case RESET:
-                        if (isHostPlayer) {
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                String key = dataSnapshot.getKey();
+                switch (key) {
+                    case GameVariable.STATE_KEY:
+                        gameState = Game.State.valueOf(dataSnapshot.getValue(String.class));
+                        if (gameState == Game.State.RESET && isHostPlayer) {
                             setUpNextGame();
                         }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        DatabaseReference nextPlayerRef = databaseGame.child(Game.NEXT_PLAYER_KEY);
-        nextPlayerRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String nextPlayer = dataSnapshot.getValue(String.class);
-                if (nextPlayer.equals(myName)) {
-                    // IT IS MY TURN
-                    final int[] trickNumber = new int[1];
-                    DatabaseReference trickRef = databaseGame.child(Game.TRICK_NUMBER_KEY);
-                    trickRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            trickNumber[0] = dataSnapshot.getValue(Integer.class);
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-                    if (trickNumber[0] > Game.NUM_TRICKS) {
-                        // GAME HAS ENDED
-                        databaseGame.child(Game.STATE_KEY).setValue(Game.State.RESET);
-                    } else {
-                        // CONTINUE
-                        Play myPlay = playCard();
-                        DatabaseReference playsRef = databaseGame.child(Game.PLAYS_KEY);
-                        final List<Play> plays = new ArrayList<Play>();
-                        playsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                                    Play play = snapshot.getValue(Play.class);
-                                    plays.add(play);
-                                }
-
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-                        plays.add(myPlay);
-                        if (plays.size() == Game.NUM_PLAYERS) {
-                            // TRICK IS OVER
-                            Play winningPlay = Utils.getWinningPlay(plays);
-                            if (!spadesBroken && winningPlay.getCard().getSuitValue() == Card.Suit.SPADE) {
-                                spadesBroken = true;
-                                databaseGame.child(Game.SPADES_BROKEN_KEY).setValue(true);
-                            }
-                            databaseGame.child(Game.LAST_PLAYER_KEY).setValue(myName);
-                            databaseGame.child(Game.NEXT_PLAYER_KEY).setValue(winningPlay.getPlayer());
-                            String winningPos = mapPlayerToPos.get(winningPlay.getPlayer());
-                            databaseGame.child(winningPos)
-                                    .child(Player.TRICKS_KEY).setValue(mapPositionToTricks.get(winningPos) + 1);
-                            databaseGame.child(Game.PLAYS_KEY).setValue(new ArrayList<>());
-                            databaseGame.child(Game.CURRENT_SUIT_KEY).setValue(null);
-                            databaseGame.child(Game.TRICK_NUMBER_KEY).setValue(trickNumber[0] + 1);
+                        break;
+                    case GameVariable.ROUND_KEY:
+                        roundNumber = dataSnapshot.getValue(Integer.class);
+                        break;
+                    case GameVariable.TRICK_NUMBER_KEY:
+                        trickNumber = dataSnapshot.getValue(Integer.class);
+                        break;
+                    case GameVariable.SPADES_BROKEN_KEY:
+                        spadesBroken = dataSnapshot.getValue(Boolean.class);
+                        break;
+                    case GameVariable.CURRENT_SUIT_KEY:
+                        currentSuit = Card.Suit.valueOf(dataSnapshot.getValue(String.class));
+                        break;
+                    case GameVariable.NEXT_PLAYER_KEY:
+                        nextPlayer = dataSnapshot.getValue(String.class);
+                        if (nextPlayer.equals(myName)) {
+                            //TODO enable UI stuff
+                            makeMove();
                         } else {
-                            // TRICK CONTINUES
-                            if (plays.size() == 1) {
-                                databaseGame.child(Game.CURRENT_SUIT_KEY).setValue(myPlay.getCard().getSuit());
-                            }
-                            databaseGame.child(Game.PLAYS_KEY).setValue(plays);
-                            databaseGame.child(Game.NEXT_PLAYER_KEY).setValue(leftName);
+                            //TODO disable UI stuff whatever
                         }
-                    }
+                        break;
+
                 }
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
             }
 
             @Override
@@ -300,49 +288,62 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
             }
         });
+
+    }
+
+    private void setUpPlayListener() {
+        //TODO
+    }
+
+    private void makeMove() {
+        if (trickNumber > Game.NUM_TRICKS) {
+            //TODO GAME END LOGIC
+            databaseGame.child(GameVariable.KEY).child(GameVariable.STATE_KEY).setValue(Game.State.RESET);
+        } else {
+            Play myPlay = playCard();
+            plays.add(myPlay);
+
+            if (plays.size() == Game.NUM_PLAYERS) {
+                // TRICK IS OVER
+                Play winningPlay = Utils.getWinningPlay(plays);
+                if (!spadesBroken && winningPlay.getCard().getSuitValue() == Card.Suit.SPADE) {
+                    spadesBroken = true;
+                    databaseGame.child(GameVariable.KEY).child(GameVariable.SPADES_BROKEN_KEY).setValue(true);
+                }
+                databaseGame.child(GameVariable.KEY).child(GameVariable.LAST_PLAYER_KEY).setValue(myName);
+                databaseGame.child(GameVariable.KEY).child(GameVariable.NEXT_PLAYER_KEY).setValue(winningPlay.getPlayer());
+                String winningPos = mapPlayerToPos.get(winningPlay.getPlayer());
+                databaseGame.child(winningPos)
+                        .child(Player.TRICKS_KEY).setValue(mapPositionToTricks.get(winningPos) + 1);
+                databaseGame.child(Game.PLAYS_KEY).setValue(new ArrayList<>());
+                databaseGame.child(GameVariable.KEY).child(GameVariable.CURRENT_SUIT_KEY).setValue(null);
+                databaseGame.child(GameVariable.KEY).child(GameVariable.TRICK_NUMBER_KEY).setValue(trickNumber + 1);
+            } else {
+                // TRICK CONTINUES
+                if (plays.size() == 1) {
+                    databaseGame.child(GameVariable.KEY).child(GameVariable.CURRENT_SUIT_KEY).setValue(myPlay.getCard().getSuit());
+                }
+                databaseGame.child(Game.PLAYS_KEY).setValue(plays);
+                databaseGame.child(GameVariable.KEY).child(GameVariable.NEXT_PLAYER_KEY).setValue(leftName);
+            }
+        }
     }
 
     private void setUpNextGame() {
-        databaseGame.child(Game.SPADES_BROKEN_KEY).setValue(false);
-        databaseGame.child(Game.TRICK_NUMBER_KEY).setValue(1);
-        databaseGame.child(Game.NEXT_PLAYER_KEY).setValue(leftName);
-        databaseGame.child(Game.CURRENT_SUIT_KEY).setValue(null);
+        //TODO REDEAL
+        roundNumber++;
+        databaseGame.child(GameVariable.KEY).child(GameVariable.ROUND_KEY).setValue(roundNumber);
+        databaseGame.child(GameVariable.KEY).child(GameVariable.TRICK_NUMBER_KEY).setValue(1);
+        databaseGame.child(GameVariable.KEY).child(GameVariable.SPADES_BROKEN_KEY).setValue(false);
+        databaseGame.child(GameVariable.KEY).child(GameVariable.CURRENT_SUIT_KEY).setValue(null);
+        databaseGame.child(GameVariable.KEY).child(GameVariable.NEXT_PLAYER_KEY).setValue(leftName);
         databaseGame.child(Game.PLAYS_KEY).setValue(new ArrayList<>());
     }
 
     private Play playCard() {
-        final Player[] myPlayerArray = new Player[1];
-        DatabaseReference playerRef = databaseGame.child(myPosition);
-        playerRef.keepSynced(true);
-        ValueEventListener playerRefListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                myPlayerArray[0] = dataSnapshot.getValue(Player.class);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        playerRef.addListenerForSingleValueEvent(playerRefListener);
-        Player myPlayer = myPlayerArray[0];
-        final Card.Suit[] currentSuit = new Card.Suit[1];
-        DatabaseReference currentSuitRef = databaseGame.child(Game.CURRENT_SUIT_KEY);
-        currentSuitRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                currentSuit[0] = Card.Suit.valueOf(dataSnapshot.getValue(String.class));
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        List<Card> playableCards = myPlayer.getPlayableHand(currentSuit[0], spadesBroken);
+        List<Card> playableCards = Utils.getPlayableHand(hand, currentSuit, spadesBroken);
+        //TODO something with this
         return null;
-        //TODO implmeent for David
     }
 
     public void setupGameTableFragment() {

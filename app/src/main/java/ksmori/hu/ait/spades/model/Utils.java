@@ -1,6 +1,7 @@
 package ksmori.hu.ait.spades.model;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Utils {
@@ -22,4 +23,31 @@ public class Utils {
 
         return currentWinner;
     }
+
+    public static List<Card> getPlayableHand(List<Card> hand, final Card.Suit currentSuit, final boolean spadesBroken) {
+        //TODO what if player only has spades
+        if (currentSuit == null) {
+            if (spadesBroken) {
+                return hand;
+            } else {
+                List<Card> playableCards = new ArrayList<>();
+                for (Card card : hand) {
+                    if (card.getSuitValue() != Card.Suit.SPADE) {
+                        playableCards.add(card);
+                    }
+                }
+                return playableCards;
+            }
+        }
+        else {
+            List<Card> playableCards = new ArrayList<>();
+            for (Card card : hand) {
+                if (card.getSuitValue() == currentSuit || ( spadesBroken && card.getSuitValue() == Card.Suit.SPADE)) {
+                    playableCards.add(card);
+                }
+            }
+            return playableCards;
+        }
+    }
+
 }

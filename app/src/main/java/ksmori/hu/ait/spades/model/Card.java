@@ -1,10 +1,10 @@
 package ksmori.hu.ait.spades.model;
 
-import android.content.res.Resources;
-import java.io.Serializable;
-
 import android.support.annotation.NonNull;
+
 import com.google.firebase.database.Exclude;
+
+import java.io.Serializable;
 
 public class Card implements Comparable, Serializable {
 
@@ -25,19 +25,13 @@ public class Card implements Comparable, Serializable {
     private Suit suit;
     private int value; //2 through 14 because Ace is the highest value
 
-    @Exclude
-    public static final int ACE = 14;
-    @Exclude
-    public static final int JACK = 11;
-    @Exclude
-    public static final int QUEEN = 12;
-    @Exclude
-    public static final int KING = 13;
+    @Exclude public static final int ACE = 14;
+    @Exclude public static final int JACK = 11;
+    @Exclude public static final int QUEEN = 12;
+    @Exclude public static final int KING = 13;
 
-    @Exclude
-    public static final int MIN_VALUE = 2;
-    @Exclude
-    public static final int MAX_VALUE = 14;
+    @Exclude public static final int MIN_VALUE = 2;
+    @Exclude public static final int MAX_VALUE = 14;
 
 
     public Card() {

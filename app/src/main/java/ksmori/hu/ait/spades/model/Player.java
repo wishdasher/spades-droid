@@ -2,7 +2,7 @@ package ksmori.hu.ait.spades.model;
 
 import com.google.firebase.database.Exclude;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Player {
@@ -30,6 +30,7 @@ public class Player {
     @Exclude public static final String TRICKS_KEY = "tricks";
     @Exclude public static final String HAND_KEY = "hand";
 
+    @Exclude private static final List<String> dirOrder = Arrays.asList(NORTH_KEY, EAST_KEY, SOUTH_KEY, WEST_KEY);
     private String name;
     private Bid bid;
     private List<Card> hand;
@@ -37,9 +38,9 @@ public class Player {
     private String left;
     private String partner;
     private String right;
+    private Card played;
 
     public Player() {
-
     }
 
     public Player(String name, Bid bid, List<Card> hand, int tricks, String left, String partner, String right) {
@@ -75,32 +76,6 @@ public class Player {
             bid = null;
         } else {
             bid = Bid.valueOf(bidString);
-        }
-    }
-
-    @Exclude
-    public List<Card> getPlayableHand(final Card.Suit currentSuit, final boolean spadesBroken) {
-        if (currentSuit == null) {
-            if (spadesBroken) {
-                return hand;
-            } else {
-                List<Card> playableCards = new ArrayList<>();
-                for (Card card : hand) {
-                    if (card.getSuitValue() != Card.Suit.SPADE) {
-                        playableCards.add(card);
-                    }
-                }
-                return playableCards;
-            }
-        }
-        else {
-            List<Card> playableCards = new ArrayList<>();
-            for (Card card : hand) {
-                if (card.getSuitValue() == currentSuit || ( spadesBroken && card.getSuitValue() == Card.Suit.SPADE)) {
-                    playableCards.add(card);
-                }
-            }
-            return playableCards;
         }
     }
 
@@ -142,5 +117,26 @@ public class Player {
 
     public void setRight(String right) {
         this.right = right;
+    }
+
+    @Exclude
+    public static String getLeftDir(String dir) {
+        int index = dirOrder.indexOf(dir);
+        int leftIndex = index + 1;
+        return dirOrder.get(leftIndex % Game.NUM_PLAYERS);
+    }
+
+    @Exclude
+    public static String getPartnerDir(String dir) {
+        int index = dirOrder.indexOf(dir);
+        int leftIndex = index + 2;
+        return dirOrder.get(leftIndex % Game.NUM_PLAYERS);
+    }
+
+    @Exclude
+    public static String getRightDir(String dir) {
+        int index = dirOrder.indexOf(dir);
+        int leftIndex = index + 3;
+        return dirOrder.get(leftIndex % Game.NUM_PLAYERS);
     }
 }

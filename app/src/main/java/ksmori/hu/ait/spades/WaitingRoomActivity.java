@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +25,7 @@ import ksmori.hu.ait.spades.model.Card;
 import ksmori.hu.ait.spades.model.Deck;
 import ksmori.hu.ait.spades.model.Game;
 import ksmori.hu.ait.spades.model.GameRecord;
+import ksmori.hu.ait.spades.model.GameVariable;
 import ksmori.hu.ait.spades.model.Player;
 import ksmori.hu.ait.spades.model.Team;
 
@@ -31,12 +33,15 @@ import static ksmori.hu.ait.spades.model.Game.State.SETUP;
 
 public class WaitingRoomActivity extends AppCompatActivity {
 
-    public static final String PLAYER_MEMBER_INTENT_KEY = "PLAYER_MEMBER_INTENT_KEY";
+    private static final String WAITING_ROOM_ACTIVITY_TAG = "WaitingRoomActivityTag";
     public static final String GAME_ID_INTENT_KEY = "GAME_ID_INTENT_KEY";
     public static final String HOST_PLAYER_INTENT_KEY = "HOST_PLAYER_INTENT_KEY";
+    public static final String ROOM_NAME_INTENT_KEY = "ROOM_NAME_INTENT_KEY";
+    public static final String DIR_KEY_NONE  = "NONE";
     private String gameID;
+    private String gameName;
     private boolean isHostPlayer;
-    private String playerKeyValue;
+    private String myName;
 
     private DatabaseReference database;
     private DatabaseReference databaseGame;
@@ -47,23 +52,27 @@ public class WaitingRoomActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waiting_room);
 
-
         gameID = getIntent().getStringExtra(GAME_ID_INTENT_KEY);
+        gameName = getIntent().getStringExtra(ROOM_NAME_INTENT_KEY);
         isHostPlayer = getIntent().getBooleanExtra(HOST_PLAYER_INTENT_KEY, false);
-        playerKeyValue = getIntent().getStringExtra(PLAYER_MEMBER_INTENT_KEY);
-        Toast.makeText(this, gameID, Toast.LENGTH_SHORT).show();
+        myName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+        Toast.makeText(this, "Entered game " + gameName, Toast.LENGTH_SHORT).show();
 
         database = FirebaseDatabase.getInstance().getReference();
         listenerMap = new HashMap<>();
 
-        databaseGame = FirebaseDatabase.getInstance().getReference().child(StartActivity.GAMES_KEY)
-                .child(gameID);
+        databaseGame = FirebaseDatabase.getInstance().getReference()
+                .child(StartActivity.GAMES_KEY).child(gameID);
 
-        DatabaseReference gamePlayersRef = database.child(StartActivity.GAMES_KEY)
-                .child(gameID)
-                .child(StartActivity.PLAYERS_KEY);
+        TextView tvLabel = (TextView) findViewById(R.id.tv_current_players_label);
+        tvLabel.setText("Current players in room " + gameName);
+
+        setUpListeners();
+    }
+
+    private void setUpListeners() {
+        DatabaseReference gamePlayersRef = databaseGame.child(Game.PLAYERS_KEY);
         ValueEventListener gamePlayersListener = new ValueEventListener() {
-
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 updatePlayerList(dataSnapshot);
@@ -71,43 +80,40 @@ public class WaitingRoomActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                Log.e(WAITING_ROOM_ACTIVITY_TAG, databaseError.getMessage());
             }
         };
         gamePlayersRef.addValueEventListener(gamePlayersListener);
         listenerMap.put(gamePlayersRef, gamePlayersListener);
 
-        DatabaseReference statesRef = database.child(StartActivity.GAMES_KEY)
-                .child(gameID)
-                .child(Game.STATE_KEY);
+        DatabaseReference statesRef = databaseGame.child(GameVariable.KEY).child(GameVariable.STATE_KEY);
         ValueEventListener statesListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                    switch (Game.State.valueOf(dataSnapshot.getValue(String.class))) {
+                switch (Game.State.valueOf(dataSnapshot.getValue(String.class))) {
                     case READY:
                         removeListeners();
-                        //TODO START GAME
                         Intent intent = new Intent(WaitingRoomActivity.this, SpadesGameActivity.class);
                         intent.putExtra(GAME_ID_INTENT_KEY, gameID);
-                        intent.putExtra(HOST_PLAYER_INTENT_KEY, isHostPlayer); //TODO needed?
+                        intent.putExtra(HOST_PLAYER_INTENT_KEY, isHostPlayer);
                         startActivity(intent);
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                Log.e(WAITING_ROOM_ACTIVITY_TAG, databaseError.getMessage());
             }
         };
         statesRef.addValueEventListener(statesListener);
         listenerMap.put(statesRef, statesListener);
-    }
 
+    }
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         database.child(StartActivity.GAMES_KEY).child(gameID)
-                .child(StartActivity.PLAYERS_KEY).child(playerKeyValue).removeValue();
+                .child(Game.PLAYERS_KEY).child(myName).removeValue();
         removeListeners();
     }
 
@@ -122,7 +128,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
         int numPlayers = 0;
 
         for (DataSnapshot child : dataSnapshot.getChildren()) {
-            players += child.getValue() + "\n";
+            players += child.getKey() + "\n";
             numPlayers += 1;
         }
 
@@ -137,14 +143,14 @@ public class WaitingRoomActivity extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             //Set state to SETUP
-                            database.child(StartActivity.GAMES_KEY).child(gameID)
-                                    .child(Game.STATE_KEY).setValue(SETUP);
+                            databaseGame.child(GameVariable.KEY).child(GameVariable.STATE_KEY).setValue(SETUP);
                             setUpGame(dataSnapshot);
                         }
                     })
-                    .setNeutralButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
                         }
                     })
                     .show();
@@ -152,21 +158,17 @@ public class WaitingRoomActivity extends AppCompatActivity {
     }
 
     private void setUpGame(DataSnapshot playerSnapshot) {
+        //DONE BY THE HOST ONLY
         Toast.makeText(this, "Setting up!", Toast.LENGTH_SHORT).show();
-        //hostPlayer already set
-        database.child(StartActivity.GAMES_KEY).child(gameID)
-                .child(Game.STATE_KEY).setValue(Game.State.READY);
-
-        String hostPlayer = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+        databaseGame.child(GameVariable.KEY).child(GameVariable.STATE_KEY).setValue(Game.State.SETUP);
 
         List<String> playersList = new ArrayList<>();
         for (DataSnapshot child : playerSnapshot.getChildren()) {
-            playersList.add(child.getValue(String.class));
+            playersList.add(child.getKey());
         }
 
         Deck deck = new Deck();
-        List<List<Card>> hands = deck.deal(Game.NUM_PLAYERS);
-        Map<String, String> mapNameToPosition = new HashMap<>();
+        List<ArrayList<Card>> hands = deck.deal(Game.NUM_PLAYERS);
 
         Player north = new Player(
                 playersList.get(0),
@@ -177,7 +179,6 @@ public class WaitingRoomActivity extends AppCompatActivity {
                 playersList.get(2),
                 playersList.get(3)
         );
-        mapNameToPosition.put(playersList.get(0), Player.NORTH_KEY);
         Player east = new Player(
                 playersList.get(1),
                 null,
@@ -187,7 +188,6 @@ public class WaitingRoomActivity extends AppCompatActivity {
                 playersList.get(3),
                 playersList.get(0)
         );
-        mapNameToPosition.put(playersList.get(1), Player.EAST_KEY);
         Player south = new Player(
                 playersList.get(2),
                 null,
@@ -197,7 +197,6 @@ public class WaitingRoomActivity extends AppCompatActivity {
                 playersList.get(0),
                 playersList.get(1)
         );
-        mapNameToPosition.put(playersList.get(2), Player.SOUTH_KEY);
         Player west = new Player(
                 playersList.get(3),
                 null,
@@ -207,39 +206,45 @@ public class WaitingRoomActivity extends AppCompatActivity {
                 playersList.get(1),
                 playersList.get(2)
         );
-        mapNameToPosition.put(playersList.get(3), Player.WEST_KEY);
 
         Team teamNS = new Team(north.getName(), south.getName(), 0, 0);
         Team teamEW = new Team(east.getName(), west.getName(), 0, 0);
 
-        GameRecord gr = new GameRecord(teamNS.getName(), teamEW.getName(), new ArrayList<Integer>(), new ArrayList<Integer>());
+        GameRecord gr = new GameRecord(teamNS.getName(), teamEW.getName(),
+                new ArrayList<Integer>(), new ArrayList<Integer>());
 
-        databaseGame.child(Game.HOST_KEY).setValue(hostPlayer);
+        databaseGame.child(Game.HOST_KEY).setValue(myName);
         databaseGame.child(Game.NORTH_KEY).setValue(north);
         databaseGame.child(Game.EAST_KEY).setValue(east);
         databaseGame.child(Game.SOUTH_KEY).setValue(south);
         databaseGame.child(Game.WEST_KEY).setValue(west);
         databaseGame.child(Game.TEAM_NS_KEY).setValue(teamNS);
         databaseGame.child(Game.TEAM_EW_KEY).setValue(teamEW);
-        databaseGame.child(Game.STATE_KEY).setValue(SETUP);
-        databaseGame.child(Game.ROUND_KEY).setValue(1);
         databaseGame.child(Game.GAME_RECORD_KEY).setValue(gr);
-        databaseGame.child(Game.SPADES_BROKEN_KEY).setValue(false);
-        databaseGame.child(Game.TRICK_NUMBER_KEY).setValue(1);
-        databaseGame.child(Game.LAST_PLAYER_KEY).setValue(hostPlayer);
-        databaseGame.child(Game.NEXT_PLAYER_KEY).setValue(hostPlayer);
-        databaseGame.child(Game.CURRENT_SUIT_KEY).setValue(null);
+
         databaseGame.child(Game.PLAYS_KEY).setValue(new ArrayList<>());
 
-        databaseGame.child(Game.MAP_PLAY2POS_KEY).setValue(mapNameToPosition);
+
+        databaseGame.child(GameVariable.KEY).child(GameVariable.STATE_KEY).setValue(SETUP);
+        databaseGame.child(GameVariable.KEY).child(GameVariable.ROUND_KEY).setValue(1);
+        databaseGame.child(GameVariable.KEY).child(GameVariable.TRICK_NUMBER_KEY).setValue(1);
+        databaseGame.child(GameVariable.KEY).child(GameVariable.SPADES_BROKEN_KEY).setValue(false);
+        databaseGame.child(GameVariable.KEY).child(GameVariable.CURRENT_SUIT_KEY).setValue(null);
+        databaseGame.child(GameVariable.KEY).child(GameVariable.LAST_PLAYER_KEY).setValue(myName);
+        databaseGame.child(GameVariable.KEY).child(GameVariable.NEXT_PLAYER_KEY).setValue(myName);
+
+        databaseGame.child(Game.PLAYERS_KEY).child(playersList.get(0)).setValue(Player.NORTH_KEY);
+        databaseGame.child(Game.PLAYERS_KEY).child(playersList.get(1)).setValue(Player.EAST_KEY);
+        databaseGame.child(Game.PLAYERS_KEY).child(playersList.get(2)).setValue(Player.SOUTH_KEY);
+        databaseGame.child(Game.PLAYERS_KEY).child(playersList.get(3)).setValue(Player.WEST_KEY);
 
         try {
-            Thread.sleep(2000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         Toast.makeText(this, "Setup done!", Toast.LENGTH_SHORT).show();
-        databaseGame.child(Game.STATE_KEY).setValue(Game.State.READY);
+        databaseGame.child(GameVariable.KEY).child(GameVariable.STATE_KEY).setValue(Game.State.READY);
     }
 }

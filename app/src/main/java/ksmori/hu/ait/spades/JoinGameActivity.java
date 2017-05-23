@@ -3,6 +3,7 @@ package ksmori.hu.ait.spades;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -16,7 +17,9 @@ import com.google.firebase.database.ValueEventListener;
 
 public class JoinGameActivity extends AppCompatActivity {
 
+    private static final String JOIN_GAME_ACTIVITY_TAG = "JoinGameActivityTag";
     public static final String JOIN_GAME_RETURN = "JOIN_GAME_RETURN";
+    public static final String JOIN_GAME_NAME_RETURN = "JOIN_GAME_NAME_RETURN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,16 +33,17 @@ public class JoinGameActivity extends AppCompatActivity {
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                    final String gameID = (String) ds.getValue();
+                for (final DataSnapshot child : dataSnapshot.getChildren()) {
+                    final String gameID = child.getKey();
                     Button gameButton = new Button(JoinGameActivity.this);
-                    gameButton.setText(gameID);
+                    gameButton.setText(child.getValue(String.class));
                     linearLayout.addView(gameButton, layoutParams);
                     gameButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             Intent intentResult = new Intent();
                             intentResult.putExtra(JOIN_GAME_RETURN, gameID);
+                            intentResult.putExtra(JOIN_GAME_NAME_RETURN, child.getValue(String.class));
                             setResult(RESULT_OK, intentResult);
                             JoinGameActivity.this.finish();
                         }
@@ -49,6 +53,7 @@ public class JoinGameActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+                Log.e(JOIN_GAME_ACTIVITY_TAG, databaseError.getMessage());
             }
         });
 

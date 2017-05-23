@@ -31,11 +31,11 @@ public class Deck {
         checkRep();
     }
 
-    public List<List<Card>> deal(int numPlayers) {
-        List<List<Card>> hands = new ArrayList<>();
+    public List<ArrayList<Card>> deal(int numPlayers) {
+        List<ArrayList<Card>> hands = new ArrayList<>();
         int cardsEach = deck.size() / numPlayers;
         for (int p = 0; p < numPlayers; p++) {
-            hands.add(deck.subList(cardsEach * p, cardsEach * (p+1)));
+            hands.add(new ArrayList<Card>(deck.subList(cardsEach * p, cardsEach * (p+1))));
         }
         return hands;
     }

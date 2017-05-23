@@ -9,6 +9,7 @@
     tools:context="ksmori.hu.ait.spades.WaitingRoomActivity">
 
     <TextView
+        android:id="@+id/tv_current_players_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Current players in the room: "/>
