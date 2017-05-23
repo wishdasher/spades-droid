@@ -11,9 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -36,10 +34,11 @@ import ksmori.hu.ait.spades.model.GameVariable;
 import ksmori.hu.ait.spades.model.Play;
 import ksmori.hu.ait.spades.model.Player;
 import ksmori.hu.ait.spades.model.Utils;
-import ksmori.hu.ait.spades.presenter.CardsDisplay;
+import ksmori.hu.ait.spades.view.CardsDisplay;
 import ksmori.hu.ait.spades.presenter.SpadesPresenter;
 import ksmori.hu.ait.spades.util.SpadesDebug;
 import ksmori.hu.ait.spades.view.CardImageView;
+import ksmori.hu.ait.spades.view.GameTable;
 import ksmori.hu.ait.spades.view.GameTableFragment;
 import ksmori.hu.ait.spades.view.PlayerCardsFragment;
 import ksmori.hu.ait.spades.view.SpadesGameRootLayout;
@@ -58,9 +57,8 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     public static final float SLOP_RADIUS_PERCENT = 3f;
 
     private SpadesPresenter mSpadesPresenter;
-    private Fragment mGameFragment;
+    private GameTable mGameTable;
     private CardsDisplay mCardsDisplay;
-    private SpadesGameRootLayout rootLayout;
 
     private CardImageView activeCard;
     private int[] activeCardOriginalLocation;
@@ -104,6 +102,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     private Map<DatabaseReference, ValueEventListener> listenerMap = new HashMap<>();
 
     private Card myCardToPlay;
+    private GameTableFragment mGameFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,7 +119,8 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         //rootLayout = (SpadesGameRootLayout) findViewById(R.id.layout_root_game_activity);
         activeCard.bringToFront();
 
-        setUpListeners();
+
+        setupGameTableFragment();
 
         // 1. Get Players
         DatabaseReference mapRef = databaseGame.child(Game.PLAYERS_KEY);
@@ -143,8 +143,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                                     myHand.add(child.getValue(Card.class));
-                                } // 4. Once cards are obtained, show fragments
-                                setupGameTableFragment();
+                                } // 4. Once cards are obtained, show Card fragments
                                 setupPlayerCardsFragment();
 
                                 mSpadesPresenter = new SpadesPresenter(gameID, isHostPlayer);
@@ -182,6 +181,8 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
             activeCardOriginalLocation = new int[2];
             activeCard.getLocationOnScreen(activeCardOriginalLocation); // mutator method
         }
+
+        setUpListeners();
     }
 
     private void setUpListeners() {
@@ -235,11 +236,14 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     }
 
     private void setUpPlayedCardListeners() {
+        mGameTable.setMapPlayerToPos(mapPlayerToPos);
+
         DatabaseReference northCardRef = databaseGame.child(Player.NORTH_KEY).child(Player.CARD_KEY);
         northCardRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 northCard = dataSnapshot.getValue(Card.class);
+                mGameTable.updateNorthCard(northCard);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -250,26 +254,29 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 eastCard = dataSnapshot.getValue(Card.class);
+                mGameTable.updateEastCard(eastCard);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-        DatabaseReference southCardRef = databaseGame.child(Player.SOUTH_KEY).child(Player.CARD_KEY);
+        final DatabaseReference southCardRef = databaseGame.child(Player.SOUTH_KEY).child(Player.CARD_KEY);
         southCardRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 southCard = dataSnapshot.getValue(Card.class);
+                mGameTable.updateSouthCard(southCard);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-        DatabaseReference westCardRef = databaseGame.child(Player.WEST_KEY).child(Player.CARD_KEY);
+        final DatabaseReference westCardRef = databaseGame.child(Player.WEST_KEY).child(Player.CARD_KEY);
         westCardRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 westCard = dataSnapshot.getValue(Card.class);
+                mGameTable.updateWestCard(westCard);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -436,15 +443,9 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
     public void setupGameTableFragment() {
         GameTableFragment gtf = new GameTableFragment();
-        String[] positions = {myPosition,Player.getLeftDir(myPosition),
-                Player.getPartnerDir(myPosition),Player.getRightDir(myPosition)};
-        for (String pos : positions) {
-            ViewGroup box = (ViewGroup) gtf.getView().findViewById(getResources().getIdentifier(
-                    "player_box_"+pos,"id","ksmori.hu.ait.spades"));
-            ImageView iv = (ImageView) box.findViewById(getResources().getIdentifier(
-                    "iv_player_card_"+pos,"id","ksmori.hu.ait.spades"));
-            //TODO have a listener on some property update ImageView
-        }
+        Bundle argBundle = new Bundle();
+        argBundle.putSerializable(GameTableFragment.HASHMAP_KEY,(Serializable) mapPlayerToPos);
+        gtf.setArguments(argBundle);
 
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
@@ -452,6 +453,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         ft.commit();
 
         mGameFragment = gtf;
+        mGameTable = gtf;
     }
 
     private void setupPlayerCardsFragment() {

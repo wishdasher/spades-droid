@@ -18,7 +18,6 @@ import java.util.List;
 import ksmori.hu.ait.spades.R;
 import ksmori.hu.ait.spades.SpadesGameScreen;
 import ksmori.hu.ait.spades.model.Card;
-import ksmori.hu.ait.spades.presenter.CardsDisplay;
 import ksmori.hu.ait.spades.util.SpadesDebug;
 import android.support.annotation.Nullable;
 

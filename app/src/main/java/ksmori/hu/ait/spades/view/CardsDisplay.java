@@ -1,4 +1,4 @@
-package ksmori.hu.ait.spades.presenter;
+package ksmori.hu.ait.spades.view;
 
 import java.util.List;
 import ksmori.hu.ait.spades.model.Card;
