@@ -18,30 +18,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ksmori.hu.ait.spades.R;
+import ksmori.hu.ait.spades.SpadesGameActivity;
+import ksmori.hu.ait.spades.SpadesGameScreen;
 
 public class SpadesGameRootLayout extends PercentRelativeLayout{
 
     private static final String DEBUG_TAG = "SpadesGameRootLayout";
 
-    private boolean mIsDragging;
     private CardImageView activeCard;
     private List<PointF> testPts = new ArrayList<>();
+    private SpadesGameScreen spadesGameScreen;
+    private static final float SLOP_RADIUS_PERCENT = SpadesGameActivity.SLOP_RADIUS_PERCENT;
 
-//    private float mTouchSlopPx;
-//    private static final int mTouchSlopDp = 50; //threshold value, in dp, above which to detect drag gesture
 
     public SpadesGameRootLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.setWillNotDraw(false);
+        spadesGameScreen = (SpadesGameScreen) context;
+//        this.setWillNotDraw(false);
     }
 
-//    @Override
-//    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-//        super.onLayout(changed, left, top, right, bottom);
-//        DisplayMetrics metrics = new DisplayMetrics();
-//        ((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(metrics);
-//        mTouchSlopPx = mTouchSlopDp * metrics.density;
-//    }
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w,h,oldw,oldh);
+        if(activeCard == null){
+            activeCard = (CardImageView) this.findViewById(R.id.iv_active_card);
+        }
+        
+    }
 
     /**
      * This method JUST determines whether we want to intercept the motion.
@@ -51,87 +54,90 @@ public class SpadesGameRootLayout extends PercentRelativeLayout{
      * This interception lets us drag the Active CardImageView in the same gesture
      * as clicking on a CardImageView in the PlayerCardsFragment
      */
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-
-        final int action = MotionEventCompat.getActionMasked(ev);
-
-        // Always handle the case of the touch gesture being complete.
-        if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
-            // Release the scroll.
-            mIsDragging = false;
-            return false; // Do not intercept touch event, let the child handle it
-        }
-
-        switch (action) {
-            case MotionEvent.ACTION_MOVE:
-                Log.d(DEBUG_TAG,"Intercepted MOVE: "+ev.toString());
-                return true;
-//                if (mIsDragging) {
-//                    // We're currently dragging, so yes, intercept the touch event!
-//                    return true;
-//                }
-//                // If the user has dragged her finger horizontally more than
-//                // the touch slop, start the scroll
-//                // left as an exercise for the reader
-//                final float diff = calculateDistance(ev);
-//                Log.d(DEBUG_TAG,String.format("diff = %f, slopPx = %f",diff,mTouchSlopPx));
-//
-//                // Touch slop should be calculated using ViewConfiguration constants.
-//                if (diff > mTouchSlopPx) {
-//                    // Start scrolling!
-//                    mIsDragging = true;
-//                    return true;
-//                }
-//                break;
-            default:
-                return false; // in general, we want to let most events be handled by children
-        }
-    }
-
-    /**
-     * Here we actually handle the touch event (e.g. if the action is ACTION_MOVE,
-     * scroll this container).
-     * This method will only be called if the touch event was intercepted in
-     * onInterceptTouchEvent
-     */
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        if(activeCard == null){
-            activeCard = (CardImageView) this.findViewById(R.id.iv_active_card);
-        }
-        activeCard.dispatchTouchEvent(ev);
-        return true;
-    }
-
-//    private float calculateDistance(MotionEvent ev) {
-//        //Always assuming ev.getPointerCount()==1
-//        //I don't want to deal with multiple fingers on the screen at once
-//        final int historySize = ev.getHistorySize();
-//        Log.d(DEBUG_TAG,"history size = "+historySize);
-//        if(historySize > 0) {
-//            float xOld = ev.getHistoricalX(historySize - 1);
-//            float yOld = ev.getHistoricalX(historySize - 1);
-//            return (float) Math.sqrt((xOld - ev.getX()) * (xOld - ev.getX())
-//                    + (yOld - ev.getY()) * (xOld - ev.getY()));
+//    @Override
+//    public boolean onInterceptTouchEvent(MotionEvent ev) {
+//        final int action = MotionEventCompat.getActionMasked(ev);
+//        // Always handle the case of the touch gesture being complete.
+//        if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
+//            return false; // Do not intercept touch event, let the child handle it
 //        }
-//        return 0;
+//        switch (action) {
+//            case MotionEvent.ACTION_MOVE:
+//                Log.d(DEBUG_TAG,"Intercepted MOVE: "+ev.toString());
+//                return true/*spadesGameScreen.getIsTouchable()*/;
+//            default:
+//                return false; // in general, we want to let most events be handled by children
+//        }
+//        Log.d(DEBUG_TAG,String.format("onInterceptTouchEvent(%s)",ev.toString()));
+//        if(ev.getActionMasked() == MotionEvent.ACTION_CANCEL){
+//            Log.d(DEBUG_TAG,String.format("onInterceptTouchEvent(%s) is CANCEL",ev.toString()));
+//            return false;
+//        } if (!spadesGameScreen.getIsTouchable()) {
+//            Log.d(DEBUG_TAG, String.format("onInterceptTouchEvent(%s) ignored b/c !isTouchable", ev.toString()));
+//            return false;
+//        }
+//        spadesGameScreen.setIsTouchable(false);
+//        final int action = MotionEventCompat.getActionMasked(ev);
+////        int[] loc = new int[2];
+////        activeCard.getLocationOnScreen(loc);
+//        switch (action) {
+//            case MotionEvent.ACTION_MOVE: {
+//                activeCard.getHeight();
+//                activeCard.getWidth();
+////                Log.d(DEBUG_TAG, String.format("ActiveCard location: %d <= X <= %d\n\t%d <= Y <= %d",
+////                        loc[0], loc[0] + activeCard.getWidth(), loc[1], loc[1] + activeCard.getHeight()));
+//                if (spadesGameScreen.isForActiveCard(ev)) {
+//                    Log.d(DEBUG_TAG, "MOVE is in Card SLOP: " + ev.toString());
+//                    spadesGameScreen.setIsTouchable(true);
+//                    return true; //intercept; handle any MOVE near ActiveCard in Root.OnTouchEvent
+//                }
+//            }
+//            case MotionEvent.ACTION_UP: {
+////                Log.d(DEBUG_TAG, String.format("ActiveCard location: %d <= X <= %d\n\t%d <= Y <= %d",
+////                        loc[0], loc[0] + activeCard.getWidth(), loc[1], loc[1] + activeCard.getHeight()));
+//                if (spadesGameScreen.isForActiveCard(ev)) {
+//                    Log.d(DEBUG_TAG, "UP is in Card SLOP: " + ev.toString());
+//                    spadesGameScreen.setIsTouchable(true);
+//                    return true; //intercepted, sent to Root.OnTouchEvent
+//                }
+//            }
+//        }
+//        spadesGameScreen.setIsTouchable(true);
+//        return false; // in general, we want to let most events be handled by children
 //    }
-
+//
+//    /**
+//     * Here we actually handle the touch event (e.g. if the action is ACTION_MOVE, drag ActiveCard
+//     * This method will be called if the touch event was intercepted in onInterceptTouchEvent
+//     * OR if no children (nor this class's onTouchListener) handle the event
+//     *
+//     * injects an ACTION_CANCEL when returning true
+//     */
+//    @Override
+//    public boolean onTouchEvent(MotionEvent ev) {
+//        if(/*spadesGameScreen.getIsTouchable() && */ev.getActionMasked()==MotionEvent.ACTION_MOVE) {
+//            Log.d(DEBUG_TAG,String.format("onTouchEvent(%s) for ActiveCard",ev.toString()));
+//            spadesGameScreen.setLastAction(ev.getActionMasked());
+//            activeCard.dispatchTouchEvent(ev);
+//            return true;
+//        }
+////        spadesGameScreen.setIsTouchable(true);
+//        return true; // everything not sent by onIntercept has this as its "last resort"
+//    }
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-        fuckingDOIT(canvas);
+        doIt(canvas);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        fuckingDOIT(canvas);
+        doIt(canvas);
     }
 
-    private void fuckingDOIT(Canvas canvas) {
+    private void doIt(Canvas canvas) {
         Paint paint = new Paint();
         paint.setColor(Color.BLACK);
         paint.setStyle(Paint.Style.FILL);
