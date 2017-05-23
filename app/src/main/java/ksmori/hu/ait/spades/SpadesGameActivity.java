@@ -90,7 +90,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     private Map<String, Integer> mapPositionToTricks = new HashMap<>();
 
     private List<Card> myHand = new ArrayList<>();
-    private List<Play> plays;
+    private List<Play> plays = new ArrayList<>();
 
     //Utils
     private DatabaseReference databaseGame;
