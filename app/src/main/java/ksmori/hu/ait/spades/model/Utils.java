@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Utils {
+
     public static Play getWinningPlay(List<Play> plays) {
         assert plays.size() == Game.NUM_PLAYERS;
 
@@ -25,29 +26,28 @@ public class Utils {
     }
 
     public static List<Card> getPlayableHand(List<Card> hand, final Card.Suit currentSuit, final boolean spadesBroken) {
-        //TODO what if player only has spades
-        if (currentSuit == null) {
+        List<Card> playableCards = new ArrayList<>();
+        if (currentSuit != null) {
+            for (Card card : hand) {
+                if (card.getSuitValue() == currentSuit) {
+                    playableCards.add(card);
+                }
+            }
+        } else {
             if (spadesBroken) {
                 return hand;
             } else {
-                List<Card> playableCards = new ArrayList<>();
                 for (Card card : hand) {
                     if (card.getSuitValue() != Card.Suit.SPADE) {
                         playableCards.add(card);
                     }
                 }
-                return playableCards;
             }
         }
-        else {
-            List<Card> playableCards = new ArrayList<>();
-            for (Card card : hand) {
-                if (card.getSuitValue() == currentSuit || ( spadesBroken && card.getSuitValue() == Card.Suit.SPADE)) {
-                    playableCards.add(card);
-                }
-            }
-            return playableCards;
+        if (playableCards.size() == 0) {
+            return hand;
         }
+        return playableCards;
     }
 
 }

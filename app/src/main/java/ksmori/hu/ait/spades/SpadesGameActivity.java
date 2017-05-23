@@ -42,7 +42,7 @@ import ksmori.hu.ait.spades.view.SpadesGameRootLayout;
 public class SpadesGameActivity extends AppCompatActivity implements SpadesGameScreen,
         View.OnTouchListener{
 
-    private static final String DEBUG_TAG = "SpadesGameActivity";
+    private static final String SPADES_GAME_ACTIVITY_TAG = "SpadesGameActivityTag";
     private static final long ANIM_DURATION_MILLIS = 750;
     private SpadesPresenter mSpadesPresenter;
     private Fragment mGameFragment;
@@ -61,7 +61,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     private boolean isHostPlayer;
 
     //Game variables - static
-    private String myPosition;
+    private String myPosition; // NORTH EAST SOUTH OR WEST
     private String leftName;
     private Map<String, String> mapPlayerToPos = new HashMap<>();
 
@@ -119,28 +119,23 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
                                 }
                                 continueSetUp(myHand);
                             }
-
                             @Override
                             public void onCancelled(DatabaseError databaseError) {
-
+                                Log.e(SPADES_GAME_ACTIVITY_TAG, databaseError.getMessage());
                             }
                         });
-
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
+                        Log.e(SPADES_GAME_ACTIVITY_TAG, databaseError.getMessage());
                     }
                 });
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                Log.e(SPADES_GAME_ACTIVITY_TAG, databaseError.getMessage());
             }
         });
-
-
 
     }
 
@@ -292,7 +287,34 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     }
 
     private void setUpPlayListener() {
-        //TODO
+        DatabaseReference playsRef = databaseGame.child(Game.PLAYS_KEY);
+        playsRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Play newPlay = dataSnapshot.getValue(Play.class);
+                plays.add(newPlay);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                plays.clear();
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void makeMove() {
@@ -342,7 +364,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
     private Play playCard() {
         List<Card> playableCards = Utils.getPlayableHand(hand, currentSuit, spadesBroken);
-        //TODO something with this
+        //TODO return the card chosen, along with username
         return null;
     }
 
@@ -420,13 +442,13 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         String actionStr = SpadesDebug.getActionString(event);
-        Log.d(DEBUG_TAG, String.format("onTouch(%s,%s)", v.toString(), actionStr));
+        Log.d(SPADES_GAME_ACTIVITY_TAG, String.format("onTouch(%s,%s)", v.toString(), actionStr));
         if(event.getActionMasked() == MotionEvent.ACTION_CANCEL){
             return true;
         } else if(v.getId() == R.id.iv_active_card){
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
-                    Log.d(DEBUG_TAG, "ActiveCard DOWN!");
+                    Log.d(SPADES_GAME_ACTIVITY_TAG, "ActiveCard DOWN!");
                     dX = v.getX() - event.getRawX();
                     dY = v.getY() - event.getRawY();
                     lastAction = MotionEvent.ACTION_DOWN;
@@ -440,10 +462,10 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
                 case MotionEvent.ACTION_UP:
                     if (lastAction == MotionEvent.ACTION_DOWN) {
-                        Log.d(DEBUG_TAG, "ActiveCard clickUp!");
+                        Log.d(SPADES_GAME_ACTIVITY_TAG, "ActiveCard clickUp!");
                         mCardPresenter.cancelCardSelection();
                     } else if (lastAction == MotionEvent.ACTION_MOVE){
-                        Log.d(DEBUG_TAG, "ActiveCard dragUp!");
+                        Log.d(SPADES_GAME_ACTIVITY_TAG, "ActiveCard dragUp!");
                         if(inPlayArea(event.getRawX(),event.getRawY())){
                             performPlayAnimation();
                         }
@@ -470,8 +492,8 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
             int maxX = minX + gameView.getWidth();
             int minY = gameLoc[1];
             int maxY = minY + gameView.getHeight();
-            Log.d(DEBUG_TAG, String.format("X validation: %d < %f < %d ?",minX, rawX, maxX));
-            Log.d(DEBUG_TAG, String.format("Y validation: %d < %f < %d ?",minY, rawY, maxY));
+            Log.d(SPADES_GAME_ACTIVITY_TAG, String.format("X validation: %d < %f < %d ?",minX, rawX, maxX));
+            Log.d(SPADES_GAME_ACTIVITY_TAG, String.format("Y validation: %d < %f < %d ?",minY, rawY, maxY));
 
             return (minX <= rawX && rawX <= maxX && minY <= rawY && rawY <= maxY);
         } else {
