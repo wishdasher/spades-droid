@@ -95,6 +95,12 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
         final List<Card> myHand = new ArrayList<>();
 
+        activeCard = (CardImageView) findViewById(R.id.iv_active_card);
+        activeCard.setOnTouchListener(SpadesGameActivity.this);
+        //rootLayout = (SpadesGameRootLayout) findViewById(R.id.layout_root_game_activity);
+        activeCard.bringToFront();
+
+        setUpListeners();
 
         DatabaseReference mapRef = databaseGame.child(Game.PLAYERS_KEY);
         mapRef.addValueEventListener(new ValueEventListener() {
@@ -117,7 +123,15 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
                                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                                     myHand.add(child.getValue(Card.class));
                                 }
-                                continueSetUp(myHand);
+                                setupGameTableFragment();
+                                setupPlayerCardsFragment(myHand);
+
+                                mSpadesPresenter = new SpadesPresenter();
+
+                                if (isHostPlayer) {
+                                    //EVENTUALLY BE BIDDING
+                                    databaseGame.child(GameVariable.KEY).child(GameVariable.STATE_KEY).setValue(Game.State.PLAY);
+                                }
                             }
                             @Override
                             public void onCancelled(DatabaseError databaseError) {
@@ -140,21 +154,6 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     }
 
     private void continueSetUp(List<Card> myHand) {
-        setUpListeners();
-        setupGameTableFragment();
-        setupPlayerCardsFragment(myHand);
-
-        activeCard = (CardImageView) findViewById(R.id.iv_active_card);
-        activeCard.setOnTouchListener(this);
-//        rootLayout = (SpadesGameRootLayout) findViewById(R.id.layout_root_game_activity);
-        activeCard.bringToFront();
-
-        mSpadesPresenter = new SpadesPresenter();
-
-        if (isHostPlayer) {
-            //EVENTUALLY BE BIDDING
-            databaseGame.child(GameVariable.KEY).child(GameVariable.STATE_KEY).setValue(Game.State.PLAY);
-        }
     }
 
     @Override
