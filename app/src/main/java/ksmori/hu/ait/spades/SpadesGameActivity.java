@@ -11,7 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 import ksmori.hu.ait.spades.model.Card;
-import ksmori.hu.ait.spades.model.Deck;
 import ksmori.hu.ait.spades.model.Game;
 import ksmori.hu.ait.spades.model.GameVariable;
 import ksmori.hu.ait.spades.model.Play;
@@ -61,7 +59,6 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     private Fragment mGameFragment;
     private CardsDisplay mCardsDisplay;
     private SpadesGameRootLayout rootLayout;
-    private List<Card> playerCards;
 
     private CardImageView activeCard;
     private int[] activeCardOriginalLocation;
@@ -92,7 +89,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
     private Map<String, Integer> mapPositionToTricks = new HashMap<>();
 
-    private List<Card> hand;
+    private List<Card> myHand = new ArrayList<>();
     private List<Play> plays;
 
     //Utils
@@ -114,8 +111,6 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         gameID = getIntent().getStringExtra(WaitingRoomActivity.GAME_ID_INTENT_KEY);
         databaseGame = FirebaseDatabase.getInstance().getReference().child(StartActivity.GAMES_KEY).child(gameID);
         isHostPlayer = getIntent().getBooleanExtra(WaitingRoomActivity.HOST_PLAYER_INTENT_KEY, false);
-
-        final List<Card> myHand = new ArrayList<>();
 
         activeCard = (CardImageView) findViewById(R.id.iv_active_card);
         activeCard.setOnTouchListener(SpadesGameActivity.this);
@@ -384,7 +379,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     }
 
     private Play playCard() {
-        List<Card> playableCards = Utils.getPlayableHand(hand, currentSuit, spadesBroken);
+        List<Card> playableCards = Utils.getPlayableHand(myHand, currentSuit, spadesBroken);
         //TODO return the card chosen, along with username
         return null;
     }
@@ -403,7 +398,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     private void setupPlayerCardsFragment() {
         PlayerCardsFragment pcf = new PlayerCardsFragment();
         Bundle argBundle = new Bundle();
-        argBundle.putSerializable(PlayerCardsFragment.CARDS_KEY,(Serializable) playerCards);
+        argBundle.putSerializable(PlayerCardsFragment.CARDS_KEY,(Serializable) myHand);
         pcf.setArguments(argBundle);
 
         FragmentManager fm = getSupportFragmentManager();
