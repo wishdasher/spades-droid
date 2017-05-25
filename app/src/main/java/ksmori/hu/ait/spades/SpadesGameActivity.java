@@ -119,8 +119,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
         //rootLayout = (SpadesGameRootLayout) findViewById(R.id.layout_root_game_activity);
         activeCard.bringToFront();
 
-
-        setupGameTableFragment();
+        setupGameTableFragment(); // can't wait to setup on listen
 
         // 1. Get Players
         DatabaseReference mapRef = databaseGame.child(Game.PLAYERS_KEY);
@@ -131,6 +130,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
                     mapPlayerToPos.put(child.getKey(), child.getValue(String.class));
                 } // 2. Get mapping between player names and positions
                 myPosition = mapPlayerToPos.get(myName);
+                mGameTable.setCurrentPlayerDir(myPosition);
                 DatabaseReference leftRef = databaseGame.child(myPosition).child(Player.LEFT_KEY);
                 leftRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -173,16 +173,6 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
 
 
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        if(activeCardOriginalLocation == null) {
-            activeCardOriginalLocation = new int[2];
-            activeCard.getLocationOnScreen(activeCardOriginalLocation); // mutator method
-        }
-
-        setUpListeners();
     }
 
     private void setUpListeners() {
@@ -236,14 +226,14 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     }
 
     private void setUpPlayedCardListeners() {
-        mGameTable.setMapPlayerToPos(mapPlayerToPos);
-
-        DatabaseReference northCardRef = databaseGame.child(Player.NORTH_KEY).child(Player.CARD_KEY);
+        final DatabaseReference northCardRef = databaseGame.child(Player.NORTH_KEY).child(Player.CARD_KEY);
         northCardRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 northCard = dataSnapshot.getValue(Card.class);
-                mGameTable.updateNorthCard(northCard);
+                if(northCard!=null) { //TODO figure out why this would be triggered for null values
+                    mGameTable.updateNorthCard(northCard);
+                }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -254,7 +244,9 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 eastCard = dataSnapshot.getValue(Card.class);
-                mGameTable.updateEastCard(eastCard);
+                if(eastCard!=null) {
+                    mGameTable.updateEastCard(eastCard);
+                }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -265,7 +257,9 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 southCard = dataSnapshot.getValue(Card.class);
-                mGameTable.updateSouthCard(southCard);
+                if(southCard != null) {
+                    mGameTable.updateSouthCard(southCard);
+                }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -276,7 +270,9 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 westCard = dataSnapshot.getValue(Card.class);
-                mGameTable.updateWestCard(westCard);
+                if(westCard!=null) {
+                    mGameTable.updateWestCard(westCard);
+                }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -444,16 +440,14 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
     public void setupGameTableFragment() {
         GameTableFragment gtf = new GameTableFragment();
         Bundle argBundle = new Bundle();
-        argBundle.putSerializable(GameTableFragment.HASHMAP_KEY,(Serializable) mapPlayerToPos);
+//        argBundle.putSerializable(GameTableFragment.HASHMAP_KEY,(Serializable) mapPlayerToPos);
+//        argBundle.putString(GameTableFragment.PLAYER_POS_KEY,myPosition);
         gtf.setArguments(argBundle);
 
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         ft.add(R.id.fl_game_table_container, gtf,GameTableFragment.TAG);
         ft.commit();
-
-        mGameFragment = gtf;
-        mGameTable = gtf;
     }
 
     private void setupPlayerCardsFragment() {
@@ -696,6 +690,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
                         activeCard.getCard()),"drawable","ksmori.hu.ait.spades"));
                 mCardsDisplay.removeSelectedCard();
                 hideActiveCard();
+                makeMove();
                 isTouchable = true;
             }
 
@@ -709,7 +704,7 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
 
             }
         });
-        animSet.playTogether(animScaleX,animScaleY,animTransX,animTransY); // lol
+        animSet.playTogether(animScaleX,animScaleY,animTransX,animTransY); // lol play together
         animSet.start();
     }
 
@@ -738,5 +733,21 @@ public class SpadesGameActivity extends AppCompatActivity implements SpadesGameS
                 && ev.getRawX() <= loc[0] + (1f + SLOP_RADIUS_PERCENT) * activeCard.getWidth()
                 && loc[1] - SLOP_RADIUS_PERCENT * activeCard.getHeight() <= ev.getRawY()
                 && ev.getRawY() <= loc[1] + (1f + SLOP_RADIUS_PERCENT) * activeCard.getHeight();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mGameFragment = (GameTableFragment) getSupportFragmentManager()
+                    .findFragmentByTag(GameTableFragment.TAG);
+        mGameTable = (GameTable) mGameFragment;
+
+        if(activeCardOriginalLocation == null) {
+            activeCardOriginalLocation = new int[2];
+            activeCard.getLocationOnScreen(activeCardOriginalLocation); // mutator method
+        }
+
+        setUpListeners();
+
     }
 }

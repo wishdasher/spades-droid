@@ -6,8 +6,7 @@ import ksmori.hu.ait.spades.model.Card;
 
 public interface GameTable {
 
-
-    void setMapPlayerToPos(Map<String,String> mapPlayerToPos);
+    void setCurrentPlayerDir(String playerDir);
 
     void updateNorthCard(Card northCard);
 
